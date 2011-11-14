@@ -339,14 +339,7 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 		try {
 			this.mWakeLock.release();
 
-			try {
-				sensorMgr.unregisterListener(this, sensorGrav);
-				sensorMgr.unregisterListener(this, sensorMag);
-				sensorMgr = null;
-
-				mixContext.unregisterLocationManager();
-			} catch (Exception ignore) {
-			}
+      unregisterListners();
 
 			if (fError) {
 				finish();
@@ -441,21 +434,9 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 			}
 		} catch (Exception ex) {
 			doError(ex);
-			try {
-				if (sensorMgr != null) {
-					sensorMgr.unregisterListener(this, sensorGrav);
-					sensorMgr.unregisterListener(this, sensorMag);
-					sensorMgr = null;
-				}
-
-				if (mixContext != null) {
-					mixContext.unregisterLocationManager();
-				}
-			} catch (Exception ignore) {
-			}
+      unregisterListners();
 		}
 
-		Log.d("-------------------------------------------","resume");
 		if (dataView.isFrozen() && searchNotificationTxt == null){
 			searchNotificationTxt = new TextView(this);
 			searchNotificationTxt.setWidth(dWindow.getWidth());
@@ -646,9 +627,7 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 			t.cancel();
 			setZoomLevel();
 		}
-
 	};
-
 
 	public void onSensorChanged(SensorEvent evt) {
 		try {
@@ -771,7 +750,30 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 		return false;
 	}
 
+  /**
+  * Function intended to unregister listners in case of pausing
+  * the application (avoids battery drain).
+  */
+  private void unregisterListners() {
+    try {
+      /* disabling sensor manager */
+      if(sensorMgr != null) {
+        sensorMgr.unregisterListener(this, sensorGrav);
+        sensorMgr.unregisterListener(this, sensorMag);
+        sensorMgr = null;
+      }
 
+      /* disabling mix context */
+      if(mixContext != null) {
+        mixContext.unregisterLocationManager();
+
+        if(mixContext.downloadManager != null)
+          mixContext.downloadManager.stop();
+      }
+    } catch (Exception ignore) {
+      /* Exception igonred */
+		}
+  }
 }
 
 /**
