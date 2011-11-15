@@ -192,13 +192,14 @@ public class DataView {
 			height = heightInit;
 
 			cam = new Camera(width, height, true);
-			cam.setViewAngle(Camera.DEFAULT_VIEW_ANGLE);
+			float hva = Compatibility.getHorizontalViewAngle();
+			cam.setViewAngle(hva);
 
 			lrl.set(0, -RadarPoints.RADIUS);
-			lrl.rotate(Camera.DEFAULT_VIEW_ANGLE / 2);
+			lrl.rotate(hva / 2);
 			lrl.add(rx + RadarPoints.RADIUS, ry + RadarPoints.RADIUS);
 			rrl.set(0, -RadarPoints.RADIUS);
-			rrl.rotate(-Camera.DEFAULT_VIEW_ANGLE / 2);
+			rrl.rotate(-hva / 2);
 			rrl.add(rx + RadarPoints.RADIUS, ry + RadarPoints.RADIUS);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -214,7 +215,6 @@ public class DataView {
 		mixContext.setAllDataSourcesforLauncher(request.source);
 		new DownloadManager(mixContext).execute(request);
 		state.nextLStatus = MixState.PROCESSING;
-		
 	}
 
 	public void requestData(DataSource datasource, double lat, double lon, double alt, float radius, String locale) {
