@@ -41,7 +41,7 @@ import android.util.Log;
  * each entry in its todo list one after another.
  */
 public class DownloadManager extends AsyncTask<DownloadRequest, Integer, DownloadResult> {
-	
+
 	MixContext ctx;
 	MixView mview;
 
@@ -56,58 +56,58 @@ public class DownloadManager extends AsyncTask<DownloadRequest, Integer, Downloa
 
 		try {
 			request = params[0];
-		String tmp = ctx.openURL(request.source.getUrl(), request.params);
+			String tmp = ctx.openURL(request.source.getUrl(), request.params);
 
-				Json layer = new Json();
+			Json layer = new Json();
 
-				// try loading JSON DATA
+			// try loading JSON DATA
+			try {
+
+				Log.v(MixView.TAG, "try to load JSON data");
+				JSONObject root = new JSONObject(tmp);
+				List<Marker> markers = layer.load(root,request.source);
+				result.setMarkers(markers);
+				result.source = request.source;
+				result.error = false;
+				result.errorMsg = null;
+			}
+			catch (JSONException e) {
+
+				Log.v(MixView.TAG, "no JSON data");
+				Log.v(MixView.TAG, "try to load XML data");
+
 				try {
+					DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+					//Document doc = builder.parse(is);d
+					Document doc = builder.parse(new InputSource(new StringReader(tmp)));
 
-					Log.v(MixView.TAG, "try to load JSON data");
-					JSONObject root = new JSONObject(tmp);
-					List<Marker> markers = layer.load(root,request.source);
+					//Document doc = builder.parse(is);
+
+					XMLHandler xml = new XMLHandler();
+
+					Log.i(MixView.TAG, "loading XML data");	
+
+
+					List<Marker> markers = xml.load(doc, request.source);
+
 					result.setMarkers(markers);
+
 					result.source = request.source;
 					result.error = false;
 					result.errorMsg = null;
-				}
-				catch (JSONException e) {
-
-					Log.v(MixView.TAG, "no JSON data");
-					Log.v(MixView.TAG, "try to load XML data");
-
-					try {
-						DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-						//Document doc = builder.parse(is);d
-						Document doc = builder.parse(new InputSource(new StringReader(tmp)));
-
-						//Document doc = builder.parse(is);
-
-						XMLHandler xml = new XMLHandler();
-
-						Log.i(MixView.TAG, "loading XML data");	
-						
-
-						List<Marker> markers = xml.load(doc, request.source);
-						
-						result.setMarkers(markers);
-
-						result.source = request.source;
-						result.error = false;
-						result.errorMsg = null;
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}				
-				}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}				
+			}
 		}
 		catch (Exception ex) {
 			result.errorMsg = ex.getMessage();
 			ex.printStackTrace();
 		}
-		
+
 		return result;
 	}
-	
+
 	protected void onPostExecute(DownloadResult result) {
 		MixView mview = ctx.mixView;
 		DataHandler dataHandler = mview.dataView.getDataHandler();
@@ -116,10 +116,8 @@ public class DownloadManager extends AsyncTask<DownloadRequest, Integer, Downloa
 }
 
 class DownloadRequest {
-
 	public DataSource source;
 	String params;
-
 }
 
 class DownloadResult {
@@ -138,5 +136,5 @@ class DownloadResult {
 	public void setMarkers(List<Marker> markers) {
 		this.markers = markers;
 	}
-	
+
 }
