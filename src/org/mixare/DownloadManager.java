@@ -134,10 +134,9 @@ public class DownloadManager implements Runnable {
 		//assume an error until everything is fine
 		result.error = true;
 		try {
-			if(ctx!=null && request!=null && ctx.getHttpGETInputStream(request.source.getUrl())!=null){
+			if(ctx!=null && request!=null){
 
-				is = ctx.getHttpGETInputStream(request.source.getUrl() + request.params);
-				String tmp = ctx.getHttpInputString(is);
+				String tmp = ctx.openURL(request.source.getUrl(), request.params);
 
 				Json layer = new Json();
 
@@ -186,7 +185,7 @@ public class DownloadManager implements Runnable {
 						e1.printStackTrace();
 					}				
 				}
-				ctx.returnHttpInputStream(is);
+				ctx.closeHttpInputStream(is);
 				is = null;
 			}
 		}
@@ -195,7 +194,7 @@ public class DownloadManager implements Runnable {
 			result.errorRequest = request;
 
 			try {
-				ctx.returnHttpInputStream(is);
+				ctx.closeHttpInputStream(is);
 			} catch (Exception ignore) {
 			}
 
