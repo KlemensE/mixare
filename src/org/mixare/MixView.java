@@ -61,7 +61,6 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -71,7 +70,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
@@ -88,7 +86,6 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 	private MixContext mixContext;
 	static PaintScreen dWindow;
 	static DataView dataView;
-	private Thread downloadThread;
 
 	private float RTmp[] = new float[9];
 	private float Rot[] = new float[9];
@@ -211,14 +208,11 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 		super.onCreate(savedInstanceState);
 
 		try {
-
-
-
 			handleIntent(getIntent());
 
 			final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 			this.mWakeLock = pm.newWakeLock(
-					PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "My Tag");
+					PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "mixare");
 
 			killOnError();
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -256,6 +250,7 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 			if (!isInited) {
 				mixContext = new MixContext(this);
 				mixContext.downloadManager = new DownloadManager(mixContext);
+
 				dWindow = new PaintScreen();
 				dataView = new DataView(mixContext);
 
@@ -350,7 +345,6 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 				sensorMgr = null;
 
 				mixContext.unregisterLocationManager();
-				mixContext.downloadManager.stop();
 			} catch (Exception ignore) {
 			}
 
@@ -445,8 +439,6 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 			} catch (Exception ex) {
 				Log.d("mixare", "GPS Initialize Error", ex);
 			}
-			downloadThread = new Thread(mixContext.downloadManager);
-			downloadThread.start();
 		} catch (Exception ex) {
 			doError(ex);
 			try {
@@ -458,8 +450,6 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 
 				if (mixContext != null) {
 					mixContext.unregisterLocationManager();
-					if (mixContext.downloadManager != null)
-						mixContext.downloadManager.stop();
 				}
 			} catch (Exception ignore) {
 			}
@@ -512,7 +502,7 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 		switch(item.getItemId()){
 		/*Data sources*/
 		case 1:		
-			if(!dataView.isLauncherStarted()){
+			if(!dataView.isStartedByLauncher()){
 				Intent intent = new Intent(MixView.this, DataSourceList.class); 
 				startActivityForResult(intent, 40);
 			}
@@ -621,9 +611,6 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 
 		dataView.doStart();
 		dataView.clearEvents();
-		downloadThread = new Thread(mixContext.downloadManager);
-		downloadThread.start();
-
 	};
 
 	private SeekBar.OnSeekBarChangeListener myZoomBarOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
