@@ -211,11 +211,10 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 		super.onCreate(savedInstanceState);
 
 		try {
-
-
-      /* initializing the low pass filter objects */
-      lpf_acc = new LowPassFilter();
-      lpf_mgnt = new LowPassFilter();
+      /* initializing the low pass filter objects. The parameters have been
+         defined empirically */
+      lpf_acc  = new LowPassFilter(0.5f, 1.0f);
+      lpf_mgnt = new LowPassFilter(2.0f, 5.0f);
 
 			handleIntent(getIntent());
 
