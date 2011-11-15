@@ -381,7 +381,8 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 			double angleX, angleY;
 
 			int marker_orientation = -90;
-			Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+			int rotation = Compatibility.getRotation(this);
 			
 			//display text from left to right and keep it horizontal
 			angleX = Math.toRadians(marker_orientation);
@@ -391,7 +392,7 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 			);
 			angleX = Math.toRadians(marker_orientation);
 			angleY = Math.toRadians(marker_orientation);
-			if (display.getRotation() == 1) {
+			if (rotation == 1) {
 				m2.set(	1f,	0f,							0f,
 						0f,	(float) Math.cos(angleX),	(float) -Math.sin(angleX),
 						0f,	(float) Math.sin(angleX),	(float) Math.cos(angleX));
@@ -680,8 +681,10 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 			}
 
 			SensorManager.getRotationMatrix(RTmp, I, grav, mag);
-			Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-			if (display.getRotation() == 1) {
+			
+			int rotation = Compatibility.getRotation(this);
+			
+			if (rotation == 1) {
 				SensorManager.remapCoordinateSystem(RTmp, SensorManager.AXIS_X, SensorManager.AXIS_MINUS_Z, Rot);
 			} else {
 				SensorManager.remapCoordinateSystem(RTmp, SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_Z, Rot);
