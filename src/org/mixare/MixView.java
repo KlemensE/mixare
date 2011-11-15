@@ -661,12 +661,14 @@ public class MixView extends Activity implements SensorEventListener, OnTouchLis
 			}
 
 			SensorManager.getRotationMatrix(RTmp, I, grav, mag);
-			Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-
-			if (display.getRotation() == 1)
+			
+			int rotation = Compatibility.getRotation(this);
+			
+			if (rotation == 1) {
 				SensorManager.remapCoordinateSystem(RTmp, SensorManager.AXIS_X, SensorManager.AXIS_MINUS_Z, Rot);
-			else
+			} else {
 				SensorManager.remapCoordinateSystem(RTmp, SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_Z, Rot);
+      }
 
 			tempR.set(Rot[0], Rot[1], Rot[2], Rot[3], Rot[4], Rot[5], Rot[6], Rot[7], Rot[8]);
 
