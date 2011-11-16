@@ -47,7 +47,7 @@ class AugmentedView extends View {
 			//app.killOnError();
 
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e, true);
+			//ErrorUtility.handleError(TAG, e, true);
 		}
 	}
 
@@ -100,7 +100,7 @@ class AugmentedView extends View {
 
 			MixView.dataView.draw(MixView.dWindow);
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e, true);
+			//ErrorUtility.handleError(TAG, e, true);
 		}
 	}
 }

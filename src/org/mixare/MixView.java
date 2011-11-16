@@ -26,6 +26,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import android.net.ConnectivityManager;
+import android.provider.Settings;
+
+import org.mixare.gui.ButtonTypes;
+import org.mixare.gui.DialogButton;
 import org.mixare.R.drawable;
 import org.mixare.data.DataHandler;
 import org.mixare.data.DataSourceList;
@@ -133,12 +138,6 @@ public class MixView extends Activity
 		return zoomProgress;
 	}
 
-
-//	public void killOnError() throws Exception {
-//		if (fError)
-//			throw new Exception();
-//	}
-
 	public void repaint() {
 		dataView = new DataView(mixContext);
 		dWindow = new PaintScreen();
@@ -148,6 +147,32 @@ public class MixView extends Activity
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+
+    /*********************** DEBUG *************************/
+    System.out.println("------------------- debug start     -------------------");
+    /* define buttons */
+    ArrayList<DialogButton> btns = new ArrayList<DialogButton>();
+    btns.add(new DialogButton(ButtonTypes.POSITIVE,
+      getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON1),
+      new RetryClick()));
+
+    btns.add(new DialogButton(ButtonTypes.NEUTRAL,
+      getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON2),
+      new OpenSettingsClick()));
+
+    btns.add(new DialogButton(ButtonTypes.NEGATIVE,
+      getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON3),
+      new CloseClick()));
+
+    /* generate the error (log and visualization) */
+    ErrorUtility.handleError(TAG,
+                             getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
+                             "No connectivity found",
+                             this,
+                             btns);
+    System.out.println("------------------- debug stop      -------------------");
+    /******************** END DEBUG ************************/
 
 		try {
       /* initializing the low pass filter objects. The parameters have been
@@ -161,7 +186,6 @@ public class MixView extends Activity
 			this.mWakeLock = pm.newWakeLock(
 					PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "My Tag");
 
-			//killOnError();
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 			/*Get the preference file PREFS_NAME stored in the internal memory of the phone*/
@@ -194,6 +218,7 @@ public class MixView extends Activity
 					LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT,
 					Gravity.BOTTOM));
 
+
 			if (!isInited) {
 				mixContext = new MixContext(this);
 				mixContext.downloadManager = new DownloadManager(mixContext);
@@ -206,7 +231,8 @@ public class MixView extends Activity
 			}
 
 			/*check if the application is launched for the first time*/
-			if(settings.getBoolean("firstAccess",false)==false){
+      boolean firstAccess = settings.getBoolean("firstAccess",false);
+			if(firstAccess == false){
 				AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
 				builder1.setMessage(getString(DataView.LICENSE_TEXT));
 				builder1.setNegativeButton(getString(DataView.CLOSE_BUTTON), new DialogInterface.OnClickListener() {
@@ -235,8 +261,8 @@ public class MixView extends Activity
 			} 
 
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e, true);
-      augScreen.invalidate();
+			ErrorUtility.handleError(TAG, e);
+      //augScreen.invalidate();
 		}
 	}
 
@@ -292,7 +318,7 @@ public class MixView extends Activity
 //				finish();
 //			}
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e, false);
+			ErrorUtility.handleError(TAG, e);
 		}
 	}
 
@@ -303,7 +329,6 @@ public class MixView extends Activity
 		try {
 			this.mWakeLock.acquire();
 
-			//killOnError();
 			SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 			mixContext.mixView = this;
 			dataView.doStart();
@@ -378,7 +403,6 @@ public class MixView extends Activity
 			downloadThread = new Thread(mixContext.downloadManager);
 			downloadThread.start();
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e, false);
       unregisterListners();
 		}
 
@@ -618,15 +642,13 @@ public class MixView extends Activity
 			}
 
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e, false);
-			Log.e(TAG, e.getStackTrace().toString());
+			ErrorUtility.handleError(TAG, e);
 		}
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		try {
-			//killOnError();
 
 			float xPress = me.getX();
 			float yPress = me.getY();
@@ -637,7 +659,7 @@ public class MixView extends Activity
 			return true;
 
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e, false);
+			ErrorUtility.handleError(TAG, e);
 			return super.onTouchEvent(me);
 		}
 	}
@@ -645,8 +667,6 @@ public class MixView extends Activity
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		try {
-			//killOnError();
-
 			if (keyCode == KeyEvent.KEYCODE_BACK) {
 				if (dataView.isDetailsView()) {
 					dataView.keyEvent(keyCode);
@@ -664,7 +684,7 @@ public class MixView extends Activity
 			}
 
 		} catch (Exception e) {
-      ErrorUtility.handleError(TAG, e, false);
+      ErrorUtility.handleError(TAG, e);
 			return super.onKeyDown(keyCode, event);
 		}
 	}
@@ -711,7 +731,45 @@ public class MixView extends Activity
 
     } catch (Exception e) {
       /* Exception ignored, but logged */
-      ErrorUtility.handleError(TAG, e, false);
+      ErrorUtility.handleError(TAG, e);
 		}
+  }
+
+  /**
+  * This Class represents the retry button action that is shown
+  * on a dialog box when an error is detected.
+  *
+  * @author Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
+  */
+  class RetryClick implements DialogInterface.OnClickListener {
+    public void onClick(DialogInterface dialog, int id) {
+      /* TODO: improve */
+      repaint();	       		
+    }
+  }
+
+  /**
+  * This Class represents the open settings button action that is shown
+  * on a dialog box when an error is detected.
+  *
+  * @author Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
+  */
+  class OpenSettingsClick implements DialogInterface.OnClickListener {
+    public void onClick(DialogInterface dialog, int id) {
+      Intent intent1 = new Intent(Settings.ACTION_WIRELESS_SETTINGS); 
+      startActivityForResult(intent1, 42);
+    }
+  }
+
+  /**
+  * This Class represents the close button action that is shown
+  * on a dialog box when an error is detected.
+  *
+  * @author Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
+  */
+  class CloseClick implements DialogInterface.OnClickListener {
+    public void onClick(DialogInterface dialog, int id) {
+      System.exit(0);
+    }
   }
 }
