@@ -24,7 +24,6 @@ import static android.hardware.SensorManager.SENSOR_DELAY_GAME;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.mixare.R.drawable;
@@ -41,10 +40,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.hardware.Camera;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -54,15 +50,12 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnTouchListener;
@@ -122,10 +115,10 @@ public class MixView extends Activity
   /* low pass filter object for magnet */
   LowPassFilter lpf_mgnt;
 
-	//TAG for logging
-	public static final String TAG = "Mixare";
+	/* TAG for logging */
+	public static final String TAG = "MixView";
 
-	/*string to name & access the preference file in the internal storage*/
+	/* string to name & access the preference file in the internal storage */
 	public static final String PREFS_NAME = "MyPrefsFileForMenuItems";
 
 	public boolean isZoombarVisible() {
@@ -645,7 +638,6 @@ public class MixView extends Activity
 
 		} catch (Exception e) {
 			ErrorUtility.handleError(TAG, e, false);
-
 			return super.onTouchEvent(me);
 		}
 	}
@@ -671,8 +663,8 @@ public class MixView extends Activity
 				return false;
 			}
 
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		} catch (Exception e) {
+      ErrorUtility.handleError(TAG, e, false);
 			return super.onKeyDown(keyCode, event);
 		}
 	}
