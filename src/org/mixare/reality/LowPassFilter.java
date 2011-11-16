@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010- Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
+ * Copyright (C) 2011- Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
  * 
  * This file is part of mixare.
  * 
@@ -34,7 +34,7 @@ public class LowPassFilter {
   private static final String TAG = "LowPassFilter";
 
   /* alpha default value */
-  private static final float ALPHA_STEADY       = 0.001f;
+  private static final float ALPHA_STEADY       = 0.01f;
   private static final float ALPHA_START_MOVING = 0.2f;
   private static final float ALPHA_MOVING       = 0.5f;
   
