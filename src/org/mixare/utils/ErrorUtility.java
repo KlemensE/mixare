@@ -52,7 +52,7 @@ public class ErrorUtility {
     performErrorHandling(ErrorType.DEBUG,
                          tag,
                          null,
-                         e.getStackTrace().toString(),
+                         e.getMessage(),
                          null,
                          null);
   }
@@ -66,7 +66,7 @@ public class ErrorUtility {
     performErrorHandling(ErrorType.DEBUG,
                          tag,
                          title,
-                         e.getStackTrace().toString(),
+                         e.getMessage(),
                          ctx,
                          btns);
   }
@@ -90,7 +90,7 @@ public class ErrorUtility {
     performErrorHandling(ErrorType.ERROR,
                          tag,
                          null,
-                         e.getStackTrace().toString(),
+                         e.getMessage(),
                          null,
                          null);
   }
@@ -105,10 +105,11 @@ public class ErrorUtility {
                                  Context ctx,
                                  ArrayList<DialogButton> btns) {
 
+    e.printStackTrace();
     performErrorHandling(ErrorType.ERROR,
                          tag,
                          title,
-                         e.getStackTrace().toString(),
+                         e.getMessage(),
                          ctx,
                          btns);
   }
@@ -171,6 +172,7 @@ public class ErrorUtility {
     DialogButton btn;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+		builder.setTitle(title);
 		builder.setMessage(msg);
 		builder.setCancelable(false);
 

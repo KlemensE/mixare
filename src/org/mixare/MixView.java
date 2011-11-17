@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import android.net.ConnectivityManager;
 import android.provider.Settings;
 
 import org.mixare.gui.ButtonTypes;
@@ -87,8 +86,7 @@ public class MixView extends Activity
 	private MixContext mixContext;
 	static PaintScreen dWindow;
 	static DataView dataView;
-	private Thread downloadThread;
-
+	
 	private float RTmp[] = new float[9];
 	private float Rot[] = new float[9];
 	private float I[] = new float[9];
@@ -159,7 +157,7 @@ public class MixView extends Activity
 			final PowerManager pm =
           (PowerManager)getSystemService(Context.POWER_SERVICE);
 			this.mWakeLock = pm.newWakeLock(
-					PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "My Tag");
+					PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "mixare");
 
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -227,7 +225,7 @@ public class MixView extends Activity
 				SharedPreferences.Editor dataSourceEditor = DataSourceSettings.edit();
 				dataSourceEditor.putString("DataSource0", "Wikipedia|http://ws.geonames.org/findNearbyWikipediaJSON|0|0|true");
 				dataSourceEditor.putString("DataSource1", "Twitter|http://search.twitter.com/search.json|2|0|true");
-				dataSourceEditor.putString("DataSource2", "Buzz|https://www.googleapis.com/buzz/v1/activities/search?alt=json&max-results=20|1|0|true");
+				//dataSourceEditor.putString("DataSource2", "Buzz|https://www.googleapis.com/buzz/v1/activities/search?alt=json&max-results=20|1|0|true");
 				dataSourceEditor.putString("DataSource3", "OpenStreetmap|http://open.mapquestapi.com/xapi/api/0.6/node[railway=station]|3|1|true");
 				dataSourceEditor.putString("DataSource4", "Own URL|http://mixare.org/geotest.php|4|0|false");
 				dataSourceEditor.commit();
@@ -252,7 +250,8 @@ public class MixView extends Activity
       /* generate the error (log and visualization) */
       ErrorUtility.handleError(TAG,
                                "Error",
-                               getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
+                               e,
+                               //getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
                                this,
                                btns);
       augScreen.invalidate();
@@ -324,7 +323,8 @@ public class MixView extends Activity
       /* generate the error (log and visualization) */
       ErrorUtility.handleError(TAG,
                                "Error",
-                               getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
+                               e,
+                               //getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
                                this,
                                btns);
       augScreen.invalidate();
@@ -409,8 +409,6 @@ public class MixView extends Activity
 				Log.d("mixare", "GPS Initialize Error", ex);
 			}
 
-			downloadThread = new Thread(mixContext.downloadManager);
-			downloadThread.start();
 		} catch (Exception e) {
       /* define buttons */
       ArrayList<DialogButton> btns = new ArrayList<DialogButton>();
@@ -429,27 +427,31 @@ public class MixView extends Activity
       /* generate the error (log and visualization) */
       ErrorUtility.handleError(TAG,
                                "Error",
-                               getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
+                               e,
+                               //getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
                                this,
                                btns);
       unregisterListners();
 		}
 
-		if (dataView.isFrozen() && searchNotificationTxt == null){
-			searchNotificationTxt = new TextView(this);
-			searchNotificationTxt.setWidth(dWindow.getWidth());
-			searchNotificationTxt.setPadding(10, 2, 0, 0);			
-			searchNotificationTxt.setText(getString(DataView.SEARCH_ACTIVE_1)+" "+ DataSourceList.getDataSourcesStringList()+ getString(DataView.SEARCH_ACTIVE_2));;
-			searchNotificationTxt.setBackgroundColor(Color.DKGRAY);
-			searchNotificationTxt.setTextColor(Color.WHITE);
+    if(dataView != null) {
+      if (dataView.isFrozen()
+          && searchNotificationTxt == null){
+        searchNotificationTxt = new TextView(this);
+        searchNotificationTxt.setWidth(dWindow.getWidth());
+        searchNotificationTxt.setPadding(10, 2, 0, 0);			
+        searchNotificationTxt.setText(getString(DataView.SEARCH_ACTIVE_1)+" "+ DataSourceList.getDataSourcesStringList()+ getString(DataView.SEARCH_ACTIVE_2));;
+        searchNotificationTxt.setBackgroundColor(Color.DKGRAY);
+        searchNotificationTxt.setTextColor(Color.WHITE);
 
-			searchNotificationTxt.setOnTouchListener(this);
-			addContentView(searchNotificationTxt, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		}
-		else if(!dataView.isFrozen() && searchNotificationTxt != null){
-			searchNotificationTxt.setVisibility(View.GONE);
-			searchNotificationTxt = null;
-		}
+        searchNotificationTxt.setOnTouchListener(this);
+        addContentView(searchNotificationTxt, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+      }
+      else if(!dataView.isFrozen() && searchNotificationTxt != null){
+        searchNotificationTxt.setVisibility(View.GONE);
+        searchNotificationTxt = null;
+      }
+    }
 	}
 
 	@Override
@@ -481,8 +483,7 @@ public class MixView extends Activity
 		switch(item.getItemId()){
 		/*Data sources*/
 		case 1:		
-			if(!dataView.isLauncherStarted()){
-				MixListView.setList(1);
+			if(!dataView.isStartedByLauncher()){
 				Intent intent = new Intent(MixView.this, DataSourceList.class); 
 				startActivityForResult(intent, 40);
 			}
@@ -492,8 +493,6 @@ public class MixView extends Activity
 			break;
 			/*List view*/
 		case 2:
-
-			MixListView.setList(2);
 			/*if the list of titles to show in alternative list view is not empty*/
 			if (dataView.getDataHandler().getMarkerCount() > 0) {
 				Intent intent1 = new Intent(MixView.this, MixListView.class); 
@@ -593,9 +592,6 @@ public class MixView extends Activity
 
 		dataView.doStart();
 		dataView.clearEvents();
-		downloadThread = new Thread(mixContext.downloadManager);
-		downloadThread.start();
-
 	};
 
 	private SeekBar.OnSeekBarChangeListener myZoomBarOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
@@ -753,8 +749,6 @@ public class MixView extends Activity
       if(mixContext != null) {
         mixContext.unregisterLocationManager();
 
-        if(mixContext.downloadManager != null)
-          mixContext.downloadManager.stop();
       }
 
     } catch (Exception e) {

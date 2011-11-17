@@ -100,20 +100,20 @@ class AugmentedView extends View {
       ArrayList<DialogButton> btns = new ArrayList<DialogButton>();
       btns.add(new DialogButton(ButtonTypes.POSITIVE,
         app.getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON1),
-        new MixView.RetryClick()));
+        app.new RetryClick()));
 
       btns.add(new DialogButton(ButtonTypes.NEUTRAL,
         app.getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON2),
-        new MixView.OpenSettingsClick()));
+        app.new OpenSettingsClick()));
 
       btns.add(new DialogButton(ButtonTypes.NEGATIVE,
         app.getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON3),
-        new MixView.CloseClick()));
+        app.new CloseClick()));
 
       /* generate the error (log and visualization) */
       ErrorUtility.handleError(TAG,
+                               "Error",
                                app.getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
-                               "No connectivity found",
                                app,
                                btns);
 		}
