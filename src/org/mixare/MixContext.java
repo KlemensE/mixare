@@ -299,7 +299,7 @@ public class MixContext extends ContextWrapper {
 			conn.setReadTimeout(10000);
 			conn.setConnectTimeout(10000);
 			String contentType = conn.getHeaderField("Content-Type");
-			String charset = null;
+			String charset = "UTF-8";
 			for (String param : contentType.replace(" ", "").split(";")) {
 				if (param.startsWith("charset=")) {
 					charset = param.split("=", 2)[1];
