@@ -22,7 +22,6 @@ import java.util.ArrayList;
 
 import org.mixare.gui.ButtonTypes;
 import org.mixare.gui.DialogButton;
-
 import org.mixare.utils.ErrorUtility;
 
 import android.content.Context;
@@ -45,7 +44,6 @@ class AugmentedView extends View {
 
 	public AugmentedView(Context context) {
 		super(context);
-
 	  app = (MixView)context;
 	}
 
@@ -101,22 +99,22 @@ class AugmentedView extends View {
       /* define buttons */
       ArrayList<DialogButton> btns = new ArrayList<DialogButton>();
       btns.add(new DialogButton(ButtonTypes.POSITIVE,
-        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON1),
-        new RetryClick()));
+        app.getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON1),
+        new MixView.RetryClick()));
 
       btns.add(new DialogButton(ButtonTypes.NEUTRAL,
-        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON2),
-        new OpenSettingsClick()));
+        app.getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON2),
+        new MixView.OpenSettingsClick()));
 
       btns.add(new DialogButton(ButtonTypes.NEGATIVE,
-        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON3),
-        new CloseClick()));
+        app.getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON3),
+        new MixView.CloseClick()));
 
       /* generate the error (log and visualization) */
       ErrorUtility.handleError(TAG,
-                               getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
+                               app.getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
                                "No connectivity found",
-                               this,
+                               app,
                                btns);
 		}
 	}

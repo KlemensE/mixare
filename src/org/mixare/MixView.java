@@ -148,7 +148,6 @@ public class MixView extends Activity
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-
 		try {
       /* initializing the low pass filter objects. The parameters have been
          defined empirically */
@@ -157,7 +156,8 @@ public class MixView extends Activity
 
 			handleIntent(getIntent());
 
-			final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+			final PowerManager pm =
+          (PowerManager)getSystemService(Context.POWER_SERVICE);
 			this.mWakeLock = pm.newWakeLock(
 					PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "My Tag");
 
@@ -193,7 +193,6 @@ public class MixView extends Activity
 					LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT,
 					Gravity.BOTTOM));
 
-
 			if (!isInited) {
 				mixContext = new MixContext(this);
 				mixContext.downloadManager = new DownloadManager(mixContext);
@@ -205,7 +204,7 @@ public class MixView extends Activity
 				isInited = true;		
 			}
 
-			/*check if the application is launched for the first time*/
+			/* check if the application is launched for the first time */
       boolean firstAccess = settings.getBoolean("firstAccess",false);
 			if(firstAccess == false){
 				AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
@@ -305,12 +304,8 @@ public class MixView extends Activity
 
 		try {
 			this.mWakeLock.release();
-
       unregisterListners();
 
-//			if (fError) {
-//				finish();
-//			}
 		} catch (Exception e) {
       /* define buttons */
       ArrayList<DialogButton> btns = new ArrayList<DialogButton>();
@@ -332,6 +327,7 @@ public class MixView extends Activity
                                getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
                                this,
                                btns);
+      augScreen.invalidate();
 		}
 	}
 
@@ -341,7 +337,6 @@ public class MixView extends Activity
 
 		try {
 			this.mWakeLock.acquire();
-
 			SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 			mixContext.mixView = this;
 			dataView.doStart();
@@ -413,6 +408,7 @@ public class MixView extends Activity
 			} catch (Exception ex) {
 				Log.d("mixare", "GPS Initialize Error", ex);
 			}
+
 			downloadThread = new Thread(mixContext.downloadManager);
 			downloadThread.start();
 		} catch (Exception e) {
@@ -682,7 +678,6 @@ public class MixView extends Activity
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		try {
-
 			float xPress = me.getX();
 			float yPress = me.getY();
 
@@ -692,7 +687,6 @@ public class MixView extends Activity
 			return true;
 
 		} catch (Exception e) {
-      /* generate the error (log and visualization) */
       ErrorUtility.handleError(TAG, e);
 			return super.onTouchEvent(me);
 		}
@@ -775,7 +769,7 @@ public class MixView extends Activity
   *
   * @author Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
   */
-  class RetryClick implements DialogInterface.OnClickListener {
+  public class RetryClick implements DialogInterface.OnClickListener {
     public void onClick(DialogInterface dialog, int id) {
       /* TODO: improve */
       repaint();	       		
@@ -788,7 +782,7 @@ public class MixView extends Activity
   *
   * @author Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
   */
-  class OpenSettingsClick implements DialogInterface.OnClickListener {
+  public class OpenSettingsClick implements DialogInterface.OnClickListener {
     public void onClick(DialogInterface dialog, int id) {
       Intent intent1 = new Intent(Settings.ACTION_WIRELESS_SETTINGS); 
       startActivityForResult(intent1, 42);
@@ -801,7 +795,7 @@ public class MixView extends Activity
   *
   * @author Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
   */
-  class CloseClick implements DialogInterface.OnClickListener {
+  public class CloseClick implements DialogInterface.OnClickListener {
     public void onClick(DialogInterface dialog, int id) {
       System.exit(0);
     }

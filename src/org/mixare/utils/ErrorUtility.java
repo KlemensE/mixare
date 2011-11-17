@@ -20,6 +20,7 @@ package org.mixare.utils;
 
 import java.util.ArrayList;
 import org.mixare.gui.DialogButton;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.util.Log;
@@ -27,9 +28,6 @@ import android.util.Log;
 /**
 * Class intended to provide few utilities for printing errors, communicating
 * the error to the user. This will also handle the logging of the errors.
-*
-* TODO
-*   improve the code: remove the duplicated code.
 *
 * @author Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
 */
@@ -163,18 +161,9 @@ public class ErrorUtility {
   * @author Armando Miraglia &lt;arma&#64;lamortenera.it&gt;
   * @param  ctx     context where the exception needs to be shown
   * @param  title   title of the dialog box
-  * @param  e       exception that needs to be presented
+  * @param  msg     message that needs to be showd
   * @param  btns    list of buttons that have to be inserted in the box
   */
-	private static void setErrorDialog(Context ctx,
-                                     String title,
-                                     Exception e,
-                                     ArrayList<DialogButton> btns) {
-
-    setErrorDialog(ctx, title, e.getStackTrace().toString(), btns);
-  }
-
-
 	private static void setErrorDialog(Context ctx,
                                      String title,
                                      String msg,
