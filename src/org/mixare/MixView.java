@@ -149,31 +149,6 @@ public class MixView extends Activity
 		super.onCreate(savedInstanceState);
 
 
-    /*********************** DEBUG *************************/
-    System.out.println("------------------- debug start     -------------------");
-    /* define buttons */
-    ArrayList<DialogButton> btns = new ArrayList<DialogButton>();
-    btns.add(new DialogButton(ButtonTypes.POSITIVE,
-      getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON1),
-      new RetryClick()));
-
-    btns.add(new DialogButton(ButtonTypes.NEUTRAL,
-      getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON2),
-      new OpenSettingsClick()));
-
-    btns.add(new DialogButton(ButtonTypes.NEGATIVE,
-      getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON3),
-      new CloseClick()));
-
-    /* generate the error (log and visualization) */
-    ErrorUtility.handleError(TAG,
-                             getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
-                             "No connectivity found",
-                             this,
-                             btns);
-    System.out.println("------------------- debug stop      -------------------");
-    /******************** END DEBUG ************************/
-
 		try {
       /* initializing the low pass filter objects. The parameters have been
          defined empirically */
@@ -261,8 +236,27 @@ public class MixView extends Activity
 			} 
 
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e);
-      //augScreen.invalidate();
+      /* define buttons */
+      ArrayList<DialogButton> btns = new ArrayList<DialogButton>();
+      btns.add(new DialogButton(ButtonTypes.POSITIVE,
+        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON1),
+        new RetryClick()));
+
+      btns.add(new DialogButton(ButtonTypes.NEUTRAL,
+        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON2),
+        new OpenSettingsClick()));
+
+      btns.add(new DialogButton(ButtonTypes.NEGATIVE,
+        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON3),
+        new CloseClick()));
+
+      /* generate the error (log and visualization) */
+      ErrorUtility.handleError(TAG,
+                               "Error",
+                               getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
+                               this,
+                               btns);
+      augScreen.invalidate();
 		}
 	}
 
@@ -318,7 +312,26 @@ public class MixView extends Activity
 //				finish();
 //			}
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e);
+      /* define buttons */
+      ArrayList<DialogButton> btns = new ArrayList<DialogButton>();
+      btns.add(new DialogButton(ButtonTypes.POSITIVE,
+        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON1),
+        new RetryClick()));
+
+      btns.add(new DialogButton(ButtonTypes.NEUTRAL,
+        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON2),
+        new OpenSettingsClick()));
+
+      btns.add(new DialogButton(ButtonTypes.NEGATIVE,
+        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON3),
+        new CloseClick()));
+
+      /* generate the error (log and visualization) */
+      ErrorUtility.handleError(TAG,
+                               "Error",
+                               getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
+                               this,
+                               btns);
 		}
 	}
 
@@ -403,6 +416,26 @@ public class MixView extends Activity
 			downloadThread = new Thread(mixContext.downloadManager);
 			downloadThread.start();
 		} catch (Exception e) {
+      /* define buttons */
+      ArrayList<DialogButton> btns = new ArrayList<DialogButton>();
+      btns.add(new DialogButton(ButtonTypes.POSITIVE,
+        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON1),
+        new RetryClick()));
+
+      btns.add(new DialogButton(ButtonTypes.NEUTRAL,
+        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON2),
+        new OpenSettingsClick()));
+
+      btns.add(new DialogButton(ButtonTypes.NEGATIVE,
+        getString(DataView.CONNECTION_ERROR_DIALOG_BUTTON3),
+        new CloseClick()));
+
+      /* generate the error (log and visualization) */
+      ErrorUtility.handleError(TAG,
+                               "Error",
+                               getString(DataView.CONNECTION_ERROR_DIALOG_TEXT),
+                               this,
+                               btns);
       unregisterListners();
 		}
 
@@ -659,7 +692,8 @@ public class MixView extends Activity
 			return true;
 
 		} catch (Exception e) {
-			ErrorUtility.handleError(TAG, e);
+      /* generate the error (log and visualization) */
+      ErrorUtility.handleError(TAG, e);
 			return super.onTouchEvent(me);
 		}
 	}
