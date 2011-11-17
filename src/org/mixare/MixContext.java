@@ -120,6 +120,7 @@ public class MixContext extends ContextWrapper {
 			dataSourceEditor.commit();
 			size = settings.getAll().size();
 		}
+
 		// copy the value from shared preference to adapter
 		for (int i = 0; i < size; i++) {
 			String fields[] = settings.getString("DataSource" + i, "").split("\\|", -1);

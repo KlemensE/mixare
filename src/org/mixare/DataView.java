@@ -178,7 +178,7 @@ public class DataView {
 
 	public void doStart() {
 		state.nextLStatus = MixState.NOT_STARTED;
-		//mixContext.setLocationAtLastDownload(curFix);
+		mixContext.setLocationAtLastDownload(curFix);
 	}
 
 	public boolean isInited() {
