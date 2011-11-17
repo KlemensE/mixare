@@ -82,8 +82,7 @@ public class MixView extends Activity
 	private MixContext mixContext;
 	static PaintScreen dWindow;
 	static DataView dataView;
-	private Thread downloadThread;
-
+	
 	private float RTmp[] = new float[9];
 	private float Rot[] = new float[9];
 	private float I[] = new float[9];
@@ -159,7 +158,7 @@ public class MixView extends Activity
 
 			final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 			this.mWakeLock = pm.newWakeLock(
-					PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "My Tag");
+					PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "mixare");
 
 			//killOnError();
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -375,8 +374,6 @@ public class MixView extends Activity
 			} catch (Exception ex) {
 				Log.d("mixare", "GPS Initialize Error", ex);
 			}
-			downloadThread = new Thread(mixContext.downloadManager);
-			downloadThread.start();
 		} catch (Exception e) {
 			ErrorUtility.handleError(TAG, e, false);
       unregisterListners();
@@ -428,8 +425,7 @@ public class MixView extends Activity
 		switch(item.getItemId()){
 		/*Data sources*/
 		case 1:		
-			if(!dataView.isLauncherStarted()){
-				MixListView.setList(1);
+			if(!dataView.isStartedByLauncher()){
 				Intent intent = new Intent(MixView.this, DataSourceList.class); 
 				startActivityForResult(intent, 40);
 			}
@@ -439,8 +435,6 @@ public class MixView extends Activity
 			break;
 			/*List view*/
 		case 2:
-
-			MixListView.setList(2);
 			/*if the list of titles to show in alternative list view is not empty*/
 			if (dataView.getDataHandler().getMarkerCount() > 0) {
 				Intent intent1 = new Intent(MixView.this, MixListView.class); 
@@ -540,9 +534,6 @@ public class MixView extends Activity
 
 		dataView.doStart();
 		dataView.clearEvents();
-		downloadThread = new Thread(mixContext.downloadManager);
-		downloadThread.start();
-
 	};
 
 	private SeekBar.OnSeekBarChangeListener myZoomBarOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
@@ -705,8 +696,6 @@ public class MixView extends Activity
       if(mixContext != null) {
         mixContext.unregisterLocationManager();
 
-        if(mixContext.downloadManager != null)
-          mixContext.downloadManager.stop();
       }
 
     } catch (Exception e) {
