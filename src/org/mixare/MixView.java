@@ -92,6 +92,11 @@ public class MixView extends Activity
 	private float I[] = new float[9];
 	private float grav[] = new float[3];
 	private float mag[] = new float[3];
+	private float gyro[] = new float[3];
+
+	float[] angle = new float[3];
+	float tau=0.075f; //0.075f
+	float a=0.0f;
 
 	private SensorManager sensorMgr;
 	private List<Sensor> sensors;
@@ -117,6 +122,7 @@ public class MixView extends Activity
   LowPassFilter lpf_acc;
   /* low pass filter object for magnet */
   LowPassFilter lpf_mgnt;
+private Sensor sensorGyro;
 
 	/* TAG for logging */
 	public static final String TAG = "MixView";
@@ -381,15 +387,20 @@ public class MixView extends Activity
 			sensors = sensorMgr.getSensorList(Sensor.TYPE_ACCELEROMETER);
 			if (sensors.size() > 0) {
 				sensorGrav = sensors.get(0);
+				sensorMgr.registerListener(this, sensorGrav, SENSOR_DELAY_GAME);
 			}
 
 			sensors = sensorMgr.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
 			if (sensors.size() > 0) {
 				sensorMag = sensors.get(0);
+				sensorMgr.registerListener(this, sensorMag, SENSOR_DELAY_GAME);
 			}
 
-			sensorMgr.registerListener(this, sensorGrav, SENSOR_DELAY_GAME);
-			sensorMgr.registerListener(this, sensorMag, SENSOR_DELAY_GAME);
+			sensors = sensorMgr.getSensorList(Sensor.TYPE_GYROSCOPE);
+			if (sensors.size() > 0) {
+				sensorGyro = sensors.get(0);
+				sensorMgr.registerListener(this, sensorGyro, SENSOR_DELAY_GAME);
+			}			
 
 			try {
 
@@ -626,21 +637,40 @@ public class MixView extends Activity
 			setZoomLevel();
 		}
 	};
-
+	
+	 float Complementary(float newAngle, float newRate,int looptime, float x_angleC) {
+		 float dtC = (float) ((looptime)/1000.0);
+		 a=tau/(tau+dtC);
+		 x_angleC = a* (x_angleC + newRate * dtC) + (1-a) * (newAngle);
+		 return x_angleC;
+	 }
+    
 	public void onSensorChanged(SensorEvent evt) {
 		try {
 			if (evt.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-        /* filtering the accelerometer values */
+				/* filtering the accelerometer values */
 				grav = lpf_acc.filter(evt.values, grav);
+				
 				augScreen.postInvalidate();
 
 			} else if (evt.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-        /* filtering the magnetic field values */
+				/* filtering the magnetic field values */
 				mag = lpf_mgnt.filter(evt.values, mag);
 				augScreen.postInvalidate();
+			} else if (evt.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+				gyro = evt.values;
+				augScreen.postInvalidate();
 			}
-
-			SensorManager.getRotationMatrix(RTmp, I, grav, mag);
+			
+			if (sensorGyro == null) {
+				angle = grav;
+			} else {
+				for (int i = 0; i < grav.length; i++) {
+					angle[i] = Complementary(grav[i], gyro[i], 150, angle[i]);
+				}
+			}
+			
+			SensorManager.getRotationMatrix(RTmp, I, angle, mag);
 			
 			int rotation = Compatibility.getRotation(this);
 			
