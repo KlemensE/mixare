@@ -31,12 +31,14 @@ import java.util.Random;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mixare.ImageMarker;
-import org.mixare.LocalMarker;
+import org.mixare.marker.ImageMarker;
+import org.mixare.marker.LocalMarker;
 import org.mixare.MixContext;
+import org.mixare.data.CustomTags;
 import org.mixare.data.DataHandler;
 import org.mixare.data.DataSource;
 import org.mixare.lib.HtmlUnescape;
+import org.mixare.lib.MixUtils;
 import org.mixare.lib.marker.Marker;
 import android.util.Log;
 
@@ -116,8 +118,8 @@ public class PanoramioDataProcessor extends DataHandler implements
 	 * @return List<Marker> List of Markers
 	 */
 	@Override
-	public List<Marker> load(String rawData, int taskId, int colour)
-			throws JSONException {
+	public List<Marker> load(String rawData, int taskId, int colour,
+			DataSource ds) throws JSONException {
 		final List<Marker> markers = new ArrayList<Marker>();
 		final JSONObject root = convertToJSON(rawData);
 		JSONArray dataArray = root.getJSONArray("photos");
@@ -145,7 +147,7 @@ public class PanoramioDataProcessor extends DataHandler implements
 				String title = HtmlUnescape.unescapeHTML(jo
 						.getString("photo_title"));
 				String imageOwner = jo.getString("owner_name");
-				if (title.trim().isEmpty()) {
+				if (MixUtils.isNullOrEmpty(title.trim())) {
 					title = "Photo of " + imageOwner;
 				}
 				markers.add(new ImageMarker(jo.getString("photo_id"), title,

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:key="preference_screen">
+
+    <PreferenceCategory android:title="@string/location_preference" >
+        <CheckBoxPreference
+            android:key="bounding_box"
+            android:summary="@string/bounding_box_summary"
+            android:title="@string/bounding_box_title" />
+
+        <ListPreference
+            android:dependency="bounding_box"
+            android:entries="@array/bbox_list"
+            android:entryValues="@array/bbox_list"
+            android:key="bounding_box_list"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:summary="@string/bounding_box_list_summary"
+            android:title="@string/bounding_box_list_title" />
+
+        <CheckBoxPreference
+            android:key="location"
+            android:summary="@string/location_summary"
+            android:title="@string/location_title" />
+
+        <EditTextPreference
+            android:dependency="location"
+            android:dialogTitle="@string/edittext_latitude_title"
+            android:key="edittext_latitude"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:summary="@string/edittext_latitude_summary"
+            android:title="@string/edittext_latitude_title" />
+        <EditTextPreference
+            android:dependency="location"
+            android:dialogTitle="@string/edittext_longitude_title"
+            android:key="edittext_longitude"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:summary="@string/edittext_longitude_summary"
+            android:title="@string/edittext_longitude_title" />
+        <EditTextPreference
+            android:dependency="location"
+            android:dialogTitle="@string/edittext_altitude_title"
+            android:key="edittext_altitude"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:summary="@string/edittext_altitude_summary"
+            android:title="@string/edittext_altitude_title" />
+        <EditTextPreference
+            android:dependency="location"
+            android:dialogTitle="@string/edittext_radius_title"
+            android:key="edittext_radius"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:summary="@string/edittext_radius_summary"
+            android:title="@string/edittext_radius_title" />
+
+        <org.mixare.gui.SeekBarPreference
+            android:defaultValue="20"
+            android:dependency="edittext_radius"
+            android:key="seekbar_maxradius"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:max="80"
+            android:summary="@string/seekbar_maxradius_summary"
+            android:title="@string/seekbar_maxradius_title" />
+
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_locale_title"
+            android:key="edittext_locale"
+            android:summary="@string/edittext_locale_summary"
+            android:title="@string/edittext_locale_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="additional_category"
+        android:title="@string/additional_params_preferences" >
+        <Preference
+            android:key="additional"
+            android:summary="@string/edittext_add_summary"
+            android:title="@string/edittext_add_title" >
+        </Preference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

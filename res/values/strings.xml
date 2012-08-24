@@ -18,6 +18,7 @@
     <string name="PANORAMIO">Panoramio</string>
     <string name="WIKIPEDIA">Wikipedia</string>
     <string name="ARENA">Arena</string>
+	<string name="CUSTOM">Custom</string>
     
     <string name="CIRCLE_MARKER">Circles</string>
     <string name="NAVIGATION_MARKER">Arrows</string>
@@ -147,4 +148,60 @@
 	<string name="none">None</string>
 	<string name="add_random">Add Random Distance</string>
 	<string name="truncate">Truncate GPS location</string>
+		
+	<string name="location_preference">Location</string>
+	<string name="bounding_box_summary">Bounding Box Summary</string>
+	<string name="bounding_box_title">Bounding Box Title</string>
+	<string name="bounding_box_list_summary">Bounding Box List Summary</string>
+	<string name="bounding_box_list_title">Bounding Box List Title</string>
+	<string name="location_summary">Location Summary</string>
+	<string name="location_title">Location Title</string>
+	<string name="edittext_latitude_title">Latitude</string>
+	<string name="edittext_latitude_summary">Latitude Summary</string>
+	<string name="edittext_longitude_title">Longitude</string>
+	<string name="edittext_longitude_summary">Longitude Summary</string>
+	<string name="edittext_altitude_title">altitude</string>
+	<string name="edittext_altitude_summary">altitude Summary</string>
+	<string name="edittext_radius_title">radius</string>
+	<string name="edittext_radius_summary">radius Summary</string>
+	<string name="seekbar_maxradius_summary">MaxRadius Summary</string>
+	<string name="seekbar_maxradius_title">MaxRadius</string>
+	<string name="edittext_locale_title">Locale</string>
+	<string name="edittext_locale_summary">radius Summary</string>
+	<string name="additional_params_preferences">Additional Params</string>
+	<string name="edittext_add_title">Add</string>
+	<string name="edittext_add_summary">Add</string>
+
+	<string name="key">Param name</string>
+	<string name="value">Param value</string>
+	
+	<string name="save">Save</string>
+	<string name="XML">XML</string>
+	<string name="JSON">JSON</string>
+	<string name="default_string">Default</string>
+		
+	<string name="dataprocessor_category_title_type">Type</string>
+	<string name="dataprocessor_category_title_tags">Tags</string>
+	<string name="dataprocessor_type_list_title">Type</string>
+	<string name="dataprocessor_type_list_summary">Type summary</string>
+	<string name="edittext_xml_parser_title">Xml Parser</string>
+	<string name="edittext_xml_parser_summary">Xml Parser summary</string>
+	<string name="edittext_id_title">ID</string>
+	<string name="edittext_id_summary">ID summary</string>
+	<string name="edittext_title_title">title</string>
+	<string name="edittext_title_summary">title summary</string>
+	<string name="edittext_lat_title">lat</string>
+	<string name="edittext_lat_summary">lat summary</string>
+	<string name="edittext_lon_title">lon</string>
+	<string name="edittext_lon_summary">lon summary</string>
+	<string name="edittext_alt_title">alt</string>
+	<string name="edittext_alt_summary">alt summary</string>
+	<string name="edittext_detail_page_title">detail_page</string>
+	<string name="edittext_detail_page_summary">detail_page summary</string>
+	<string name="edittext_url_title">url</string>
+	<string name="edittext_url_summary">url summary</string>
+	<string name="edittext_image_title">image</string>
+	<string name="edittext_image_summary">image summary</string>
+	<string name="edittext_root_title">root</string>
+	<string name="edittext_root_summary">root summary</string>
 </resources>

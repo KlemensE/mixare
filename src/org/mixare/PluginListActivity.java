@@ -94,7 +94,7 @@ public class PluginListActivity extends SherlockActivity {
 		// calculate the count of sections before the Plugins and get the real
 		// index of the Plugin
 		int sectionsBefore = 0;
-		for (int i = 0; i < MainActivity.getPlugins().size(); i++) {
+		for (int i = 0; i < sectionAdapter.getCount(); i++) {
 			Item item = sectionAdapter.getItem(i);
 			if (!item.isSection()) {
 				MainActivity.getPlugins().set(i - sectionsBefore,

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/dataprocessor_category_title_type" android:key="dataprocessor_category_type">
+         <ListPreference
+            android:key="dataprocessor_type_list"
+            android:entries="@array/dataprocessor_type_list"
+            android:entryValues="@array/dataprocessor_type_list"
+            android:summary="@string/dataprocessor_type_list_summary"
+            android:title="@string/dataprocessor_type_list_title" />
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="@string/dataprocessor_category_title_tags" >
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_root_title"
+            android:key="edittext_root"
+            android:summary="@string/edittext_root_summary"
+            android:title="@string/edittext_root_title" />
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_id_title"
+            android:key="edittext_id"
+            android:summary="@string/edittext_id_summary"
+            android:title="@string/edittext_id_title" />
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_title_title"
+            android:key="edittext_title"
+            android:summary="@string/edittext_title_summary"
+            android:title="@string/edittext_title_title" />
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_lat_title"
+            android:key="edittext_latitude"
+            android:summary="@string/edittext_lat_summary"
+            android:title="@string/edittext_lat_title" />
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_lon_title"
+            android:key="edittext_longitude"
+            android:summary="@string/edittext_lon_summary"
+            android:title="@string/edittext_lon_title" />
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_alt_title"
+            android:key="edittext_altitude"
+            android:summary="@string/edittext_alt_summary"
+            android:title="@string/edittext_alt_title" />
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_detail_page_title"
+            android:key="edittext_detail_page"
+            android:summary="@string/edittext_detail_page_summary"
+            android:title="@string/edittext_detail_page_title" />
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_url_title"
+            android:key="edittext_url"
+            android:summary="@string/edittext_url_summary"
+            android:title="@string/edittext_url_title" />
+        <EditTextPreference
+            android:dialogTitle="@string/edittext_image_title"
+            android:key="edittext_image"
+            android:summary="@string/edittext_image_summary"
+            android:title="@string/edittext_image_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

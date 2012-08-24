@@ -200,16 +200,14 @@ public class OsmMap extends SherlockOsmMapActivity implements
 		for (int i = 0; i < limit; i++) {
 			marker = MixView.getDataView().getDataHandler().getMarker(i);
 			// if a searchKeyword is specified
-			if (searchKeyword != null) {
-				// the Keyword is not Empty
-				if (!searchKeyword.isEmpty()) {
+			if (!MixUtils.isNullOrEmpty(searchKeyword)) {
 					// the title of the Marker contains the searchKeyword
 					if (marker.getTitle().toLowerCase()
 							.indexOf(searchKeyword.toLowerCase().trim()) == -1) {
 						marker = null;
 						continue;
 					}
-				}
+				
 			}
 			// reaches this part of code if no keyword is specified, the keyword
 			// is empty or does match
@@ -222,7 +220,7 @@ public class OsmMap extends SherlockOsmMapActivity implements
 			final OverlayItem item = new OverlayItem(point, marker.getTitle(),
 					marker.getURL());
 			// If no URL is specified change the icon
-			if (marker.getURL() == null || marker.getURL().isEmpty()) {
+			if (MixUtils.isNullOrEmpty(marker.getURL())) {
 				item.setMarker(markerNoLink);
 			}
 			// Add the item to the overlay

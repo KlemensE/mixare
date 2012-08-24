@@ -17,6 +17,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.util.Log;
 
 /**
  * This is the main activity of mixare, that will be opened if mixare is
@@ -32,13 +33,6 @@ public class MainActivity extends Activity {
 	private final String usedPluginsPrefs = "usedPlugins";
 	private static List<Plugin> plugins;
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == 1) {
-			startActivity(new Intent(ctx, PluginLoaderActivity.class));
-			finish();
-		}
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +47,14 @@ public class MainActivity extends Activity {
 			prefEditor.commit();
 			showDialog();
 		} else {
+			startActivity(new Intent(ctx, PluginLoaderActivity.class));
+			finish();
+		}
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == 1) {
 			startActivity(new Intent(ctx, PluginLoaderActivity.class));
 			finish();
 		}
@@ -152,9 +154,9 @@ public class MainActivity extends Activity {
 		for (Plugin plugin : MainActivity.getPlugins()) {
 			boolean activated = plugin.getPluginStatus().equals(
 					PluginStatus.Activated) ? true : false;
-			shareEditor.putBoolean(
-					plugin.getPluginType().name() + ":"
-							+ plugin.getServiceInfo().name, activated);
+			String name = plugin.getPluginType().name() + ":"
+					+ plugin.getServiceInfo().name;
+			shareEditor.putBoolean(name, activated);
 		}
 		shareEditor.commit();
 	}
@@ -200,7 +202,7 @@ public class MainActivity extends Activity {
 
 				String name = plugin.getPluginType().name() + ":"
 						+ plugin.getServiceInfo().name;
-
+				
 				if (sharedPreferences.contains(name)) {
 					if (sharedPreferences.getBoolean(name, true)) {
 						plugin.setPluginStatus(PluginStatus.Activated);

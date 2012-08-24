@@ -19,34 +19,35 @@
 package org.mixare.data;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.mixare.R;
+import org.mixare.lib.MixUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources.NotFoundException;
 import android.util.Log;
 
 /**
@@ -118,6 +119,7 @@ public class DataSourceStorage {
 	 * Creates a XML Element in this form:
 	 * 
 	 * <pre>
+	 * {@code
 	 * <datasource id="0">
 	 * 	<name></name>
 	 * 	<url></url>
@@ -126,6 +128,7 @@ public class DataSourceStorage {
 	 * 	<visible></visible>
 	 * 	<blur></blur>
 	 * </datasource>
+	 * }
 	 * </pre>
 	 * 
 	 * @param doc
@@ -148,7 +151,8 @@ public class DataSourceStorage {
 	 */
 	private Element createDataSourceElement(Document doc, String id,
 			String name, String url, String type, String display,
-			boolean visible, boolean editable, String blur) {
+			boolean visible, boolean editable, String blur,
+			CreateParams params, CustomTags tags, String dataProcessorId) {
 		// Set rootElement to "DataSource"
 		Element rootElement = doc.createElement("datasource");
 
@@ -180,17 +184,166 @@ public class DataSourceStorage {
 		enabled.appendChild(doc.createTextNode(String.valueOf(visible)));
 		rootElement.appendChild(enabled);
 
-		// create "enabled" Element and add it to rootElement
+		// create "editable" Element and add it to rootElement
 		Element editableElement = doc.createElement("editable");
 		editableElement
 				.appendChild(doc.createTextNode(String.valueOf(editable)));
 		rootElement.appendChild(editableElement);
 
-		// create "Display" Element and add it to rootElement
+		// create "blur" Element and add it to rootElement
 		Element blurElement = doc.createElement("blur");
 		blurElement.appendChild(doc.createTextNode(blur));
 		rootElement.appendChild(blurElement);
-		
+
+		// create "blur" Element and add it to rootElement
+		Element processorElement = doc.createElement("processor");
+		processorElement.appendChild(doc.createTextNode(dataProcessorId));
+		rootElement.appendChild(processorElement);
+
+		int ordinal = DataSource.TYPE.CUSTOM.ordinal();
+		int typeInt = Integer.valueOf(type);
+		if (ordinal == typeInt) {
+			// create "request" Element
+			Element requestElement = doc.createElement("request");
+			requestElement.setAttribute("type", params.getType() + "");
+			if (params.getType() == 0) {
+				// bbox
+				Element bboxElement = doc.createElement("bbox");
+				bboxElement.appendChild(doc.createTextNode(params.getBboxType()
+						+ ""));
+				requestElement.appendChild(bboxElement);
+			} else if (params.getType() == 1) {
+				// latitude
+				Element latElement = doc.createElement("latitude");
+				latElement.appendChild(doc.createTextNode(params
+						.getLatitudeParamName()));
+				requestElement.appendChild(latElement);
+				// longitude
+				Element lngElement = doc.createElement("longitude");
+				lngElement.appendChild(doc.createTextNode(params
+						.getLongitudeParamName()));
+				requestElement.appendChild(lngElement);
+				// altitude
+				if (!MixUtils.isNullOrEmpty(params.getAltitudeParamName())) {
+					Element altitudeElement = doc.createElement("altitude");
+					altitudeElement.appendChild(doc.createTextNode(params
+							.getAltitudeParamName()));
+					requestElement.appendChild(altitudeElement);
+				}
+				// radius
+				if (!MixUtils.isNullOrEmpty(params.getRadiusParamName())) {
+					Element radiusElement = doc.createElement("radius");
+					radiusElement.appendChild(doc.createTextNode(params
+							.getRadiusParamName()));
+					requestElement.appendChild(radiusElement);
+				}
+				// maxradius
+				if (params.getMaxRadius() != 0) {
+					Element maxradiusElement = doc.createElement("maxradius");
+					maxradiusElement.appendChild(doc.createTextNode(params
+							.getMaxRadius() + ""));
+					requestElement.appendChild(maxradiusElement);
+				}
+			}
+			// locale
+			if (!MixUtils.isNullOrEmpty(params.getLocalParamName())) {
+				Element localeElement = doc.createElement("locale");
+				localeElement.appendChild(doc.createTextNode(params
+						.getLocalParamName()));
+				requestElement.appendChild(localeElement);
+			}
+
+			// params
+			if (params.getAdditionalParams() != null) {
+				Element paramsElement = doc.createElement("params");
+				Set<Entry<String, String>> s = params.getAdditionalParams()
+						.entrySet();
+				Iterator<Entry<String, String>> it = s.iterator();
+				while (it.hasNext()) {
+					Map.Entry<String, String> m = (Entry<String, String>) it
+							.next();
+					Element paramElement = doc.createElement("param");
+
+					Element paramNameElement = doc.createElement("name");
+					paramNameElement
+							.appendChild(doc.createTextNode(m.getKey()));
+					paramElement.appendChild(paramNameElement);
+
+					Element paramValueElement = doc.createElement("value");
+					paramValueElement.appendChild(doc.createTextNode(m
+							.getValue()));
+					paramElement.appendChild(paramValueElement);
+
+					paramsElement.appendChild(paramElement);
+				}
+				requestElement.appendChild(paramsElement);
+			}
+
+			rootElement.appendChild(requestElement);
+
+			// custom tags
+			if (tags != null) {
+				Element tagElement = doc.createElement("tags");
+
+				Element processorTypeElement = doc.createElement("type");
+				processorTypeElement.appendChild(doc.createTextNode(tags
+						.getType()));
+				tagElement.appendChild(processorTypeElement);
+
+				Element xmlParserElement = doc.createElement("xml_parser");
+				xmlParserElement
+						.appendChild(doc.createTextNode(tags.getXmlParser()));
+				tagElement.appendChild(xmlParserElement);
+
+				Element processorRootElement = doc.createElement("root");
+				processorRootElement.appendChild(doc.createTextNode(tags
+						.getRoot()));
+				tagElement.appendChild(processorRootElement);
+
+				Element titleElement = doc.createElement("title");
+				titleElement.appendChild(doc.createTextNode(tags.getTitle()));
+				tagElement.appendChild(titleElement);
+
+				Element latElement = doc.createElement("lat");
+				latElement.appendChild(doc.createTextNode(tags.getLat()));
+				tagElement.appendChild(latElement);
+
+				Element lonElement = doc.createElement("lon");
+				lonElement.appendChild(doc.createTextNode(tags.getLon()));
+				tagElement.appendChild(lonElement);
+
+				if (tags.getId() != null) {
+					Element idElement = doc.createElement("id");
+					idElement.appendChild(doc.createTextNode(tags.getId()));
+					tagElement.appendChild(idElement);
+				}
+				if (tags.getAlt() != null) {
+					Element altElement = doc.createElement("alt");
+					altElement.appendChild(doc.createTextNode(tags.getAlt()));
+					tagElement.appendChild(altElement);
+				}
+				if (tags.getDetailPage() != null) {
+					Element detailPageElement = doc.createElement("detailPage");
+					detailPageElement.appendChild(doc.createTextNode(tags
+							.getDetailPage()));
+					tagElement.appendChild(detailPageElement);
+				}
+				if (tags.getUrl() != null) {
+					Element processorUrlElement = doc.createElement("url");
+					processorUrlElement.appendChild(doc.createTextNode(tags
+							.getUrl()));
+					tagElement.appendChild(processorUrlElement);
+				}
+				if (tags.getImage() != null) {
+					Element imageElement = doc.createElement("image");
+					imageElement
+							.appendChild(doc.createTextNode(tags.getImage()));
+					tagElement.appendChild(imageElement);
+				}
+				rootElement.appendChild(tagElement);
+			}
+		}
+
 		return rootElement;
 	}
 
@@ -206,18 +359,20 @@ public class DataSourceStorage {
 	}
 
 	/**
-	 * Removes the saved DataSources from the SharedPreferences and the internal List
+	 * Removes the saved DataSources from the SharedPreferences and the internal
+	 * List
 	 */
 	public void clear() {
 		SharedPreferences.Editor dataSourceEditor = settings.edit();
 		dataSourceEditor.clear();
 		dataSourceEditor.commit();
-		
+
 		dataSourceList.clear();
 	}
 
 	/**
-	 * Saves the default DataSources from the Resources to the SharedPreferences and adds them to the internal list
+	 * Saves the default DataSources from the Resources to the SharedPreferences
+	 * and adds them to the internal list
 	 */
 	public void fillDefaultDataSources() {
 		String defaultXml = inputStreamToString(ctx.getResources()
@@ -226,7 +381,7 @@ public class DataSourceStorage {
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString(DataSourceStorage.xmlPreferencesKey, defaultXml);
 		editor.commit();
-		
+
 		fillListFromXml();
 	}
 
@@ -240,9 +395,10 @@ public class DataSourceStorage {
 			dataSourceList.add(getDataSourceFromXml(i));
 		}
 	}
-	
+
 	/**
-	 * @return The XML out of the SharedPreferences or the Resources
+	 * @return The XML out of the SharedPreferences or if the SharedPreferences
+	 *         do not contain the xml, return XML out of the Resources
 	 */
 	private String getXml() {
 		String defaultXml = inputStreamToString(ctx.getResources()
@@ -250,12 +406,13 @@ public class DataSourceStorage {
 
 		return settings.getString(xmlPreferencesKey, defaultXml);
 	}
-	
+
 	/**
 	 * Calculates the length of available DataSources in the XML
+	 * 
 	 * @return How many DataSources exist
 	 */
-	private int getDataSourceLengthFromXml(){
+	private int getDataSourceLengthFromXml() {
 		try {
 			Document doc = convertToXmlDocument(getXml());
 			return doc.getElementsByTagName("datasource").getLength();
@@ -263,10 +420,12 @@ public class DataSourceStorage {
 			return 0;
 		}
 	}
-	
+
 	/**
 	 * Create's a DataSource out of the XML
-	 * @param id The id of the DataSource to recreate
+	 * 
+	 * @param id
+	 *            The id of the DataSource to recreate
 	 * @return The recreated DataSource
 	 */
 	private DataSource getDataSourceFromXml(int id) {
@@ -280,15 +439,23 @@ public class DataSourceStorage {
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nNode;
 					if (Integer.valueOf(eElement.getAttribute("id")) == id) {
-						DataSource ds = new DataSource(
-								Integer.valueOf(eElement.getAttribute("id")),
-								getTagValue("name",eElement), 
-								getTagValue("url", eElement),
-								getTagValue("type", eElement), 
-								getTagValue("display", eElement), 
-								getTagValue("visible", eElement),
-								Boolean.parseBoolean(
-										getTagValue("editable",eElement)));
+						CreateParams params = getCustomParamFromXml(eElement);
+						CustomTags dataProcessor = getCustomTagsFromXml(eElement);
+						DataSource ds = new DataSource(Integer.valueOf(eElement
+								.getAttribute("id")), getTagValue("name",
+								eElement), getTagValue("url", eElement),
+								getTagValue("type", eElement), getTagValue(
+										"display", eElement), getTagValue(
+										"visible", eElement),
+								Boolean.parseBoolean(getTagValue("editable",
+										eElement)), params, dataProcessor);
+						String dataProcessorId = getTagValue("processor",
+								eElement);
+						if (dataProcessorId != null
+								&& !dataProcessorId.equals("-1")) {
+							ds.setProcessor(DataSource.DATA_PROCESSOR.values()[Integer
+									.parseInt(dataProcessorId)]);
+						}
 						ds.setBlur(DataSource.BLUR.values()[Integer
 								.parseInt(getTagValue("blur", eElement))]);
 						return ds;
@@ -300,7 +467,140 @@ public class DataSourceStorage {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Recreate's the ParamCreater from the XML element
+	 * 
+	 * @param eElement
+	 *            The element from which to recover the ParamCreater
+	 * @return The ParamCreater or null if no ParamCreater was found
+	 */
+	private CreateParams getCustomParamFromXml(Element eElement) {
+		NodeList request = eElement.getElementsByTagName("request");
+		if (request.getLength() <= 0) {
+			return null;
+		}
+		NodeList requestNodes = request.item(0).getChildNodes();
+		int requestType = Integer.valueOf(request.item(0).getAttributes()
+				.getNamedItem("type").getNodeValue());
+		int bboxType = -1, maxRadius = 0;
+		String locale = null, lat = null, lng = null, alt = null, radius = null;
+		Map<String, String> params = null;
+		for (int i = 0; i < requestNodes.getLength(); i++) {
+			Node child = requestNodes.item(i);
+			if (requestType == 0) {
+				if (child.getNodeName().equals("bbox")) {
+					bboxType = Integer.valueOf(getNodeValue(child));
+				}
+			} else if (requestType == 1) {
+				if (child.getNodeName().equals("latitude")) {
+					lat = getNodeValue(child);
+				} else if (child.getNodeName().equals("longitude")) {
+					lng = getNodeValue(child);
+				} else if (child.getNodeName().equals("altitude")) {
+					alt = getNodeValue(child);
+				} else if (child.getNodeName().equals("radius")) {
+					radius = getNodeValue(child);
+				} else if (child.getNodeName().equals("maxradius")) {
+					maxRadius = Integer.valueOf(getNodeValue(child));
+				}
+			}
+
+			if (child.getNodeName().equals("locale")) {
+				locale = getNodeValue(child);
+			} else if (child.getNodeName().equals("params")) {
+				params = new HashMap<String, String>();
+				NodeList paramList = child.getChildNodes();
+				for (int j = 0; j < paramList.getLength(); j++) {
+					NodeList paramNode = paramList.item(j).getChildNodes();
+					String key = null, value = null;
+					for (int k = 0; k < paramNode.getLength(); k++) {
+						if (paramNode.item(k).getNodeName().equals("name")) {
+							key = getNodeValue(paramNode.item(k));
+						} else if (paramNode.item(k).getNodeName()
+								.equals("value")) {
+							value = getNodeValue(paramNode.item(k));
+						}
+					}
+					if (!MixUtils.isNullOrEmpty(key)
+							&& !MixUtils.isNullOrEmpty(value)) {
+						params.put(key, value);
+					}
+				}
+			}
+		}
+
+		if (requestType == 0) {
+			return new CreateParams(bboxType, locale, params);
+		} else if (requestType == 1) {
+			return new CreateParams(lat, lng, alt, radius, maxRadius, locale,
+					params);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Recreate's the CustomTags from the XML element
+	 * 
+	 * @param eElement
+	 *            The element from which to recover the CustomTags
+	 * @return The CustomTags or null if no CustomTag was found
+	 */
+	private CustomTags getCustomTagsFromXml(Element eElement) {
+		NodeList tags = eElement.getElementsByTagName("tags");
+		if (tags.getLength() <= 0) {
+			return null;
+		}
+		NodeList tagNodes = tags.item(0).getChildNodes();
+		String type = null, root = null, id = null, title = null, lat = null, lon = null, alt = null, detailPage = null, url = null, image = null, xmlParser = null;
+		for (int i = 0; i < tagNodes.getLength(); i++) {
+			Node child = tagNodes.item(i);
+			if (child.getNodeName().equals("type")) {
+				type = getNodeValue(child);
+			} else if (child.getNodeName().equals("root")) {
+				root = getNodeValue(child);
+			} else if (child.getNodeName().equals("title")) {
+				title = getNodeValue(child);
+			} else if (child.getNodeName().equals("lat")) {
+				lat = getNodeValue(child);
+			} else if (child.getNodeName().equals("lon")) {
+				lon = getNodeValue(child);
+			} else if (child.getNodeName().equals("alt")) {
+				alt = getNodeValue(child);
+			} else if (child.getNodeName().equals("detailPage")) {
+				detailPage = getNodeValue(child);
+			} else if (child.getNodeName().equals("url")) {
+				url = getNodeValue(child);
+			} else if (child.getNodeName().equals("image")) {
+				image = getNodeValue(child);
+			} else if (child.getNodeName().equals("xml_parser")) {
+				xmlParser = getNodeValue(child);
+			} else if (child.getNodeName().equals("id")) {
+				id = getNodeValue(child);
+			}
+		}
+		CustomTags customTags = new CustomTags(type, root, id, title, lat, lon,
+				alt, detailPage, url, image, xmlParser);
+
+		return customTags;
+	}
+
+	/**
+	 * Retrieves a value of a Node
+	 * 
+	 * @param node
+	 *            The Node which is holding the value
+	 * @return The value of the Node
+	 */
+	public String getNodeValue(Node node) {
+		if (node.hasChildNodes()) {
+			NodeList child = node.getChildNodes();
+			return child.item(0) != null ? child.item(0).getNodeValue() : null;
+		}
+		return null;
+	}
+
 	/**
 	 * Converts a InputStream to a String
 	 * 
@@ -337,6 +637,14 @@ public class DataSourceStorage {
 	 * @return The DataSource at the specified index
 	 */
 	public DataSource getDataSource(int id) {
+		if (dataSourceList.get(id) == null) {
+			fillListFromXml();
+
+			if (dataSourceList.get(id) == null) {
+				fillDefaultDataSources();
+			}
+		}
+
 		return dataSourceList.get(id);
 	}
 
@@ -350,10 +658,14 @@ public class DataSourceStorage {
 	 * @return The value of the Tag
 	 */
 	private static String getTagValue(String sTag, Element element) {
-		NodeList nlList = element.getElementsByTagName(sTag).item(0)
-				.getChildNodes();
-		Node nValue = (Node) nlList.item(0);
-		return nValue.getNodeValue();
+		try {
+			NodeList nlList = element.getElementsByTagName(sTag).item(0)
+					.getChildNodes();
+			Node nValue = (Node) nlList.item(0);
+			return nValue.getNodeValue();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	/**
@@ -381,7 +693,26 @@ public class DataSourceStorage {
 	 * @return How many DataSources are added
 	 */
 	public int getSize() {
+		if (dataSourceList == null || dataSourceList.size() == 0) {
+			try {
+				fillListFromXml();
+			} catch (Exception e) {
+				fillDefaultDataSources();
+			}
+		}
 		return dataSourceList.size();
+	}
+
+	public static Document createNewXmlDocument() {
+		try {
+			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder documentBuilder = documentBuilderFactory
+					.newDocumentBuilder();
+			return documentBuilder.newDocument();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	/**
@@ -390,31 +721,28 @@ public class DataSourceStorage {
 	public void save() {
 		int length = dataSourceList.size();
 		try {
-			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
-					.newInstance();
-			DocumentBuilder documentBuilder = documentBuilderFactory
-					.newDocumentBuilder();
-			Document doc = documentBuilder.newDocument();
-			documentBuilderFactory = null;
-			documentBuilder = null;
+			Document doc = createNewXmlDocument();
 			doc.appendChild(doc.createElement("datasources"));
 			Element documentRoot = doc.getDocumentElement();
-			
+
 			for (int i = 0; i < length; i++) {
 				// Create the XML Element for the new DataSource
-				Element dataSourceElement = createDataSourceElement(doc,
-						String.valueOf(dataSourceList.get(i).getDataSourceId()),
-						dataSourceList.get(i).getName(), 
-						dataSourceList.get(i).getUrl(),
-						String.valueOf(dataSourceList.get(i).getTypeId()),
-						String.valueOf(dataSourceList.get(i).getDisplayId()),
-						dataSourceList.get(i).getEnabled(), 
-						dataSourceList.get(i).isEditable(),
-						String.valueOf(dataSourceList.get(i).getBlurId()));
-				
+				Element dataSourceElement = createDataSourceElement(doc, String
+						.valueOf(dataSourceList.get(i).getDataSourceId()),
+						dataSourceList.get(i).getName(), dataSourceList.get(i)
+								.getUrl(), String.valueOf(dataSourceList.get(i)
+								.getTypeId()), String.valueOf(dataSourceList
+								.get(i).getDisplayId()), dataSourceList.get(i)
+								.getEnabled(), dataSourceList.get(i)
+								.isEditable(), String.valueOf(dataSourceList
+								.get(i).getBlurId()), dataSourceList.get(i)
+								.getParamCreater(), dataSourceList.get(i)
+								.getCustomTags(), String.valueOf(dataSourceList
+								.get(i).getProcessorId()));
+
 				documentRoot.appendChild(dataSourceElement);
 			}
-			
+
 			// Convert Document to String
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer transformer = tf.newTransformer();
@@ -422,17 +750,19 @@ public class DataSourceStorage {
 					"yes");
 			StringWriter writer = new StringWriter();
 			transformer.transform(new DOMSource(doc), new StreamResult(writer));
-			String xml = writer.getBuffer().toString().replaceAll("\n|\r", "");
+			// String xml = writer.getBuffer().toString().replaceAll("\n|\r",
+			// "");
+			String xml = writer.getBuffer().toString();
 
 			tf = null;
 			transformer = null;
-			
+
 			// Save it to the SharedPreferences
 			SharedPreferences.Editor editor = settings.edit();
 			editor.putString(xmlPreferencesKey, xml);
 			editor.commit();
 		} catch (Exception e) {
-			// TODO: handle exception
+
 		}
 	}
 }

@@ -45,7 +45,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -188,18 +187,19 @@ public class GoogleMap extends SherlockGoogleMapActivity implements
 	/* ********* Operators ********** */
 	/**
 	 * Gets the own position in maps Array
+	 * 
 	 * @return The index in the maps array
 	 */
 	private int getOwnListPosition() {
 		for (int i = 0; i < maps.length; i++) {
-			if(maps[i].equals(getString(R.string.map_menu_map_google))) {
+			if (maps[i].equals(getString(R.string.map_menu_map_google))) {
 				return i;
 			}
 		}
-		
+
 		return 0;
 	}
-	
+
 	private void setCenter(double latitude, double longitude) {
 		GeoPoint centerPoint = new GeoPoint((int) (latitude * 1E6),
 				(int) (longitude * 1E6));
@@ -233,13 +233,11 @@ public class GoogleMap extends SherlockGoogleMapActivity implements
 		int limit = dataView.getDataHandler().getMarkerCount();
 		for (int i = 0; i < limit; i++) {
 			marker = dataView.getDataHandler().getMarker(i);
-			if (searchKeyword != null) {
-				if (!searchKeyword.isEmpty()) {
-					if (marker.getTitle().toLowerCase()
-							.indexOf(searchKeyword.toLowerCase().trim()) == -1) {
-						marker = null;
-						continue;
-					}
+			if (!MixUtils.isNullOrEmpty(searchKeyword)) {
+				if (marker.getTitle().toLowerCase()
+						.indexOf(searchKeyword.toLowerCase().trim()) == -1) {
+					marker = null;
+					continue;
 				}
 			}
 			final GeoPoint point = new GeoPoint(
@@ -247,7 +245,7 @@ public class GoogleMap extends SherlockGoogleMapActivity implements
 					(int) (marker.getLongitude() * 1E6));
 			final OverlayItem item = new OverlayItem(point, marker.getTitle(),
 					marker.getURL());
-			if (marker.getURL() == null || marker.getURL().isEmpty()) {
+			if (!MixUtils.isNullOrEmpty(marker.getURL())) {
 				Drawable dw = this.getResources().getDrawable(
 						R.drawable.icon_map_nolink);
 				dw.setBounds(-dw.getIntrinsicWidth() / 2,

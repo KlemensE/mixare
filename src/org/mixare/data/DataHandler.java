@@ -25,11 +25,9 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.mixare.MixContext;
-import org.mixare.MixView;
 import org.mixare.lib.marker.Marker;
 
 import android.location.Location;
-import android.util.Log;
 
 /**
  * DataHandler is the model which provides the Marker Objects with its data.
@@ -42,7 +40,9 @@ public class DataHandler {
 	private List<Marker> markerList = new ArrayList<Marker>();
 	
 	public void addMarkers(List<Marker> markers) {
-
+		if (markers == null)
+			return;
+		
 //		Log.v(MixView.TAG, "Marker before: "+markerList.size());
 		for(Marker ma:markers) {
 			if(!markerList.contains(ma))

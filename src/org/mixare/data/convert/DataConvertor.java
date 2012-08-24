@@ -26,6 +26,8 @@ import org.mixare.data.DataSource;
 import org.mixare.lib.marker.Marker;
 import org.mixare.lib.reality.PhysicalPlace;
 
+import android.util.Log;
+
 /**
  * This class is responsible for converting raw data to marker data
  * The class will first check which processor is needed before it handles the data
@@ -60,12 +62,12 @@ public class DataConvertor {
 	}
 	
 	public List<Marker> load(String url, String rawResult, DataSource ds){
-		DataProcessor dataProcessor = searchForMatchingDataProcessors(url, rawResult, ds.getType());
+		DataProcessor dataProcessor = searchForMatchingDataProcessors(url, rawResult, ds);
 		if(dataProcessor == null){
 			dataProcessor = new MixareDataProcessor(); //using this as default if nothing is found.
 		}
 		try {
-			return dataProcessor.load(rawResult, ds.getDataSourceId(), ds.getColor());
+				return dataProcessor.load(rawResult, ds.getDataSourceId(), ds.getColor(), ds);
 		} catch (JSONException e) {
 			/* Find Other Away to notify Error, for now Hide this error
 			 MixView.CONTEXT.runOnUiThread(new Runnable() {
@@ -79,9 +81,27 @@ public class DataConvertor {
 		return null;
 	}
 	
-	private DataProcessor searchForMatchingDataProcessors(String url, String rawResult, DataSource.TYPE type){
+	private DataProcessor searchForMatchingDataProcessors(String url, String rawResult, DataSource ds){
+		if (ds.getProcessor() != null) {
+			Log.d("test", ds.getProcessor().name());
+			switch (ds.getProcessor()) {
+			case CUSTOM:
+				return new CustomDataProcessor();
+			case OSM:
+				return new OsmDataProcessor();
+			case PANORAMIO:
+				return new PanoramioDataProcessor();
+			case TWITTER:
+				return new TwitterDataProcessor();
+			case WIKIPEDIA:
+				return new WikiDataProcessor();
+			case MIXARE:
+				return new MixareDataProcessor();
+			}
+		}
 		for(DataProcessor dp : dataProcessors){
-			if(dp.matchesRequiredType(type.name())){
+			if(dp.matchesRequiredType(ds.getType().name())){
+				
 				//checking if url matches any dataprocessor identifiers
 				for(String urlIdentifier : dp.getUrlMatch()){
 					if(url.toLowerCase().contains(urlIdentifier.toLowerCase())){
@@ -104,6 +124,7 @@ public class DataConvertor {
 		dataProcessors.add(new TwitterDataProcessor());
 		dataProcessors.add(new OsmDataProcessor());
 		dataProcessors.add(new PanoramioDataProcessor());
+		dataProcessors.add(new CustomDataProcessor());
 	}
 	
 	public static String getOSMBoundingBox(double lat, double lon, double radius) {

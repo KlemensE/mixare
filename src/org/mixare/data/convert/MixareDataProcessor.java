@@ -26,40 +26,48 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mixare.MixContext;
 import org.mixare.MixView;
-import org.mixare.POIMarker;
+import org.mixare.marker.POIMarker;
+import org.mixare.data.CustomTags;
 import org.mixare.data.DataHandler;
+import org.mixare.data.DataSource;
 import org.mixare.lib.HtmlUnescape;
 import org.mixare.lib.marker.Marker;
 
 import android.util.Log;
 
 /**
- * A data processor for custom urls or data, Responsible for converting raw data (to json and then) to marker data.
+ * A data processor for custom urls or data, Responsible for converting raw data
+ * (to json and then) to marker data.
+ * 
  * @author A. Egal
  */
-public class MixareDataProcessor extends DataHandler implements DataProcessor{
+public class MixareDataProcessor extends DataHandler implements DataProcessor {
 
 	public static final int MAX_JSON_OBJECTS = 1000;
-	
+
 	@Override
 	public String[] getUrlMatch() {
-		String[] str = new String[0]; //only use this data source if all the others don't match
+		// only use this data source if all the others don't match
+		String[] str = new String[0];
 		return str;
 	}
 
 	@Override
 	public String[] getDataMatch() {
-		String[] str = new String[0]; //only use this data source if all the others don't match
+		// only use this data source if all the others don't match
+		String[] str = new String[0];
 		return str;
-	}
-	
-	@Override
-	public boolean matchesRequiredType(String type) {
-		return true; //this datasources has no required type, it will always match.
 	}
 
 	@Override
-	public List<Marker> load(String rawData, int taskId, int colour) throws JSONException {
+	public boolean matchesRequiredType(String type) {
+		// this datasources has no required type, it will always match.
+		return true;
+	}
+
+	@Override
+	public List<Marker> load(String rawData, int taskId, int colour,
+			DataSource ds) throws JSONException {
 		List<Marker> markers = new ArrayList<Marker>();
 		JSONObject root = convertToJSON(rawData);
 		JSONArray dataArray = root.getJSONArray("results");
@@ -67,28 +75,26 @@ public class MixareDataProcessor extends DataHandler implements DataProcessor{
 
 		for (int i = 0; i < top; i++) {
 			JSONObject jo = dataArray.getJSONObject(i);
-			
+
 			Marker ma = null;
 			if (jo.has("title") && jo.has("lat") && jo.has("lng")
 					&& jo.has("elevation")) {
 
 				String id = "";
-				if(jo.has("id"))
-						id = jo.getString("id");
-				
+				if (jo.has("id"))
+					id = jo.getString("id");
+
 				Log.v(MixView.TAG, "processing Mixare JSON object");
-				String link=null;
-		
-				if(jo.has("has_detail_page") && jo.getInt("has_detail_page")!=0 && jo.has("webpage"))
-					link=jo.getString("webpage");
-				
-				ma = new POIMarker(
-						id,
-						HtmlUnescape.unescapeHTML(jo.getString("title")), 
-						jo.getDouble("lat"), 
-						jo.getDouble("lng"), 
-						jo.getDouble("elevation"), 
-						link, 
+				String link = null;
+
+				if (jo.has("has_detail_page")
+						&& jo.getInt("has_detail_page") != 0
+						&& jo.has("webpage"))
+					link = jo.getString("webpage");
+
+				ma = new POIMarker(id, HtmlUnescape.unescapeHTML(jo
+						.getString("title")), jo.getDouble("lat"),
+						jo.getDouble("lng"), jo.getDouble("elevation"), link,
 						taskId, colour);
 				((POIMarker) ma).setIsDirectionMarker(true);
 				markers.add(ma);
@@ -96,14 +102,12 @@ public class MixareDataProcessor extends DataHandler implements DataProcessor{
 		}
 		return markers;
 	}
-	
-	private JSONObject convertToJSON(String rawData){
+
+	private JSONObject convertToJSON(String rawData) {
 		try {
 			return new JSONObject(rawData);
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	
 }

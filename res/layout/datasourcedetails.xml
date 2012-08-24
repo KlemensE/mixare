@@ -67,12 +67,13 @@
                 android:src="@android:drawable/ic_dialog_info" />
         </LinearLayout>
 
-        <Spinner
+        <org.mixare.gui.MixSpinner
             android:id="@+id/type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:spinnerMode="dialog"
             android:entries="@array/datasourcetypelist" >
-        </Spinner>
+        </org.mixare.gui.MixSpinner>
 
         <TextView
             android:id="@+id/displaytypeLabel"
@@ -88,6 +89,23 @@
             android:layout_height="wrap_content"
             android:entries="@array/displaytypelist" >
         </Spinner>
+        
+        <TextView
+            android:id="@+id/dataProcessorLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DataProcessor"
+            android:textAppearance="?android:attr/textAppearanceLarge" 
+            android:visibility="gone" >
+        </TextView>
+
+        <org.mixare.gui.MixSpinner
+            android:id="@+id/dataProcessor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/dataprocessor" 
+            android:visibility="gone" >
+        </org.mixare.gui.MixSpinner>
         
         <TextView
             android:id="@+id/blurLabel"

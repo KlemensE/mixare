@@ -16,7 +16,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
@@ -137,7 +136,7 @@ public class PluginLoaderActivity extends Activity {
 				DataSourceStorage.getInstance().clear();
 				DataSource newDs = new DataSource("Barcode source", url[i],
 						DataSource.TYPE.values()[5],
-						DataSource.DISPLAY.values()[2], true);
+						DataSource.DISPLAY.values()[2], true, null, null);
 				DataSourceStorage.getInstance().add(newDs);
 			}
 		}

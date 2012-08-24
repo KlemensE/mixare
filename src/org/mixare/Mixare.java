@@ -1,7 +1,8 @@
 package org.mixare;
 
-import org.acra.annotation.*;
-import org.acra.*;
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
+
 import android.app.Application;
 
 /**
@@ -16,7 +17,9 @@ public class Mixare extends Application {
 	@Override
 	public void onCreate() {
 		// The following line triggers the initialization of ACRA
-		ACRA.init(this);
+		if (BuildConfig.DEBUG) {
+			ACRA.init(this);
+		}
 		super.onCreate();
 	}
 }

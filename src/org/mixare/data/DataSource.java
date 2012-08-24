@@ -21,27 +21,19 @@ package org.mixare.data;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.mixare.R;
-import org.mixare.data.convert.DataConvertor;
 import org.mixare.data.convert.PanoramioDataProcessor;
+import org.mixare.lib.MixUtils;
 
-import android.app.Activity;
 import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 /**
  * The DataSource class is able to create the URL where the information about a
  * place can be found.
  * 
- * @author hannes
  * @author KlemensE
  */
 public class DataSource {
@@ -51,10 +43,13 @@ public class DataSource {
 	private String name;
 	private String url;
 	private boolean enabled;
+	private CreateParams params;
+	private CustomTags customTags;
 	private TYPE type;
 	private DISPLAY display;
 	private boolean editable;
 	private BLUR blur;
+	private DATA_PROCESSOR processor;
 
 	/**
 	 * Recreate's a previously existing DataSource
@@ -75,7 +70,8 @@ public class DataSource {
 	 *            Whether the DataSource is enabled or not
 	 */
 	public DataSource(int id, String name, String url, String typeString,
-			String displayString, String enabledString, boolean editable) {
+			String displayString, String enabledString, boolean editable,
+			CreateParams params, CustomTags customTags) {
 		DataSource.DataSourceId = id + 1;
 		this.id = id;
 		this.name = name;
@@ -85,8 +81,10 @@ public class DataSource {
 		this.enabled = Boolean.parseBoolean(enabledString);
 		this.editable = editable;
 		this.blur = BLUR.NONE;
+		this.params = params;
+		this.customTags = customTags;
 	}
-
+	
 	/**
 	 * Create's a new DataSource
 	 * 
@@ -102,7 +100,7 @@ public class DataSource {
 	 *            Whether the DataSource is enabled or not
 	 */
 	public DataSource(String name, String url, TYPE type, DISPLAY display,
-			boolean enabled) {
+			boolean enabled, CreateParams params, CustomTags customTags) {
 		this.id = DataSourceId;
 		this.name = name;
 		this.url = url;
@@ -111,10 +109,13 @@ public class DataSource {
 		this.enabled = enabled;
 		this.editable = true;
 		this.blur = BLUR.NONE;
+		this.params = params;
+		this.customTags = customTags;
 		increasId();
 	}
 
 	/* Methods */
+
 	public String createRequestParams(double lat, double lon, double alt,
 			float radius, String locale) {
 		String ret = "";
@@ -123,10 +124,10 @@ public class DataSource {
 
 			case WIKIPEDIA:
 				// Free service limited to 20km
-				float geoNamesRadius = radius > 20 ? 20 : radius;
-				ret += "?lat=" + lat + "&lng=" + lon + "&radius="
-						+ geoNamesRadius + "&maxRows=50" + "&lang=" + locale
-						+ "&username=mixare";
+				this.params = new CreateParams("lat", "lng", null, "radius",
+						20, "lang", null);
+				ret = this.params.createRequest(lat, lon, alt, radius, locale);
+
 				break;
 
 			case TWITTER:
@@ -135,29 +136,36 @@ public class DataSource {
 				break;
 
 			case MIXARE:
-				ret += "?latitude=" + Double.toString(lat) + "&longitude="
-						+ Double.toString(lon) + "&altitude="
-						+ Double.toString(alt) + "&radius="
-						+ Double.toString(radius);
+				this.params = new CreateParams("latitude", "longitude",
+						"altitude", "radius", null, null, null);
+				ret = this.params.createRequest(lat, lon, alt, radius, locale);
 				break;
 
 			case ARENA:
-				ret += "&lat=" + Double.toString(lat) + "&lng="
-						+ Double.toString(lon);
+				this.params = new CreateParams("lat", "lng", null, null, null,
+						null, null);
+				ret = this.params.createRequest(lat, lon, alt, radius, locale);
 				break;
 
 			case OSM:
-				ret += DataConvertor.getOSMBoundingBox(lat, lon, radius);
+				this.params = new CreateParams(0, null, null);
+				ret = this.params.createRequest(lat, lon, alt, radius, locale);
 				break;
 			case PANORAMIO:
-				final float minLong = (float) (lon - radius / 100.0);
-				final float minLat = (float) (lat - radius / 100.0);
-				final float maxLong = (float) (lon + radius / 100.0);
-				final float maxLat = (float) (lat + radius / 100.0);
-				ret += "?set=public&from=0&to="
-						+ PanoramioDataProcessor.MAX_JSON_OBJECTS + "&minx="
-						+ minLong + "&miny=" + minLat + "&maxx=" + maxLong
-						+ "&maxy=" + maxLat + "&size=thumbnail&mapfilter=true";
+				Map<String, String> addidtionalParams = new HashMap<String, String>();
+				addidtionalParams.put("set", "public");
+				addidtionalParams.put("from", "0");
+				addidtionalParams.put("to",
+						PanoramioDataProcessor.MAX_JSON_OBJECTS + "");
+				addidtionalParams.put("mapfilter", "true");
+				addidtionalParams.put("size", "thumbnail");
+				this.params = new CreateParams(1, null, addidtionalParams);
+				ret = this.params.createRequest(lat, lon, alt, radius, locale);
+			case CUSTOM:
+
+				break;
+			default:
+				break;
 			}
 
 		}
@@ -177,11 +185,12 @@ public class DataSource {
 	public boolean isWellFormed() {
 		boolean out = false;
 		try {
-			URL asdf = new URL(getUrl());
+			// TODO better URL check
+			new URL(getUrl());
 		} catch (MalformedURLException e) {
 			return false;
 		}
-		if (getName() != null || !getName().isEmpty()) {
+		if (!MixUtils.isNullOrEmpty(getName())) {
 			out = true;
 		}
 		return out;
@@ -189,9 +198,11 @@ public class DataSource {
 
 	@Override
 	public String toString() {
+		String paramsString = params == null ? "" : ", params=" + params.toString();
+		String tagsString = customTags == null ? "" : ", tags=" + customTags.toString();
 		return "DataSource [name=" + name + ", url=" + url + ", enabled="
 				+ enabled + ", type=" + type + ", display=" + display
-				+ ", blur=" + blur + "]";
+				+ ", blur=" + blur + ", processor=" + processor + paramsString + tagsString + "]";
 	}
 
 	/* Getter and Setter */
@@ -207,7 +218,7 @@ public class DataSource {
 	public void setBlur(BLUR blur) {
 		this.blur = blur;
 	}
-	
+
 	public void setBlur(int id) {
 		this.blur = BLUR.values()[id];
 	}
@@ -250,13 +261,13 @@ public class DataSource {
 			ret = R.drawable.arena;
 			break;
 		case PANORAMIO:
-//			ret = R.drawable.ic_launcher;
+			// ret = R.drawable.ic_launcher;
 			/*
 			 * Logo from http://www.tilo-hensel.de/free-glossy-community-icons
 			 * Created by Tilo Hensel licensed under
 			 * http://creativecommons.org/licenses/by-nc-sa/3.0/
 			 */
-			 ret = R.drawable.panoramio;
+			ret = R.drawable.panoramio;
 			break;
 		default:
 			ret = R.drawable.ic_launcher;
@@ -280,11 +291,11 @@ public class DataSource {
 	public DISPLAY getDisplay() {
 		return this.display;
 	}
-	
+
 	public void setDisplay(int id) {
 		this.display = DISPLAY.values()[id];
 	}
-	
+
 	public void setDisplay(DISPLAY display) {
 		this.display = display;
 	}
@@ -292,11 +303,11 @@ public class DataSource {
 	public TYPE getType() {
 		return this.type;
 	}
-	
+
 	public void setType(int id) {
 		this.type = TYPE.values()[id];
 	}
-	
+
 	public void setType(TYPE type) {
 		this.type = type;
 	}
@@ -312,7 +323,7 @@ public class DataSource {
 	public String getName() {
 		return this.name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -320,7 +331,7 @@ public class DataSource {
 	public String getUrl() {
 		return this.url;
 	}
-	
+
 	public void setUrl(String url) {
 		this.url = url;
 	}
@@ -329,10 +340,45 @@ public class DataSource {
 		return editable;
 	}
 
-	/* ENUM */
+	public CreateParams getParamCreater() {
+		return this.params;
+	}
+
+	public void setParamCreater(CreateParams params) {
+		this.params = params;
+	}
+
+	public CustomTags getCustomTags() {
+		return customTags;
+	}
+
+	public void setCustomTags(CustomTags customTags) {
+		this.customTags = customTags;
+	}
+
+	public DATA_PROCESSOR getProcessor() {
+		return processor;
+	}
+
+	public int getProcessorId() {
+		if (processor == null) {
+			return -1;
+		}
+		return processor.ordinal();
+	}
 	
+	public void setProcessor(DATA_PROCESSOR processor) {
+		this.processor = processor;
+	}
+	
+	public void setProcessor(int processorId) {
+		this.processor = DATA_PROCESSOR.values()[processorId];
+	}
+	
+	/* ENUM */
+
 	public enum TYPE {
-		WIKIPEDIA, TWITTER, OSM, MIXARE, ARENA, PANORAMIO
+		WIKIPEDIA, TWITTER, OSM, MIXARE, ARENA, PANORAMIO, CUSTOM
 	};
 
 	public enum DISPLAY {
@@ -341,5 +387,9 @@ public class DataSource {
 
 	public enum BLUR {
 		NONE, ADD_RANDOM, TRUNCATE
-	}
+	};
+	
+	public enum DATA_PROCESSOR {
+		WIKIPEDIA, TWITTER, OSM, MIXARE, PANORAMIO, CUSTOM
+	};
 }

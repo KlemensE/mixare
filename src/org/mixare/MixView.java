@@ -35,8 +35,6 @@ import org.mixare.lib.render.Matrix;
 import org.mixare.lib.reality.Filter;
 import org.mixare.map.MixMap;
 import org.mixare.mgr.HttpTools;
-import org.mixare.plugin.PluginLoader;
-import org.mixare.plugin.PluginType;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -78,7 +76,6 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * This class is the main application which uses the other classes for different
@@ -530,7 +527,7 @@ public class MixView extends SherlockActivity implements SensorEventListener, On
 		} catch (Throwable e) {
 			//finalize error. (this function does nothing but call native API and release 
 			//any synchronization-locked messages and threads deadlocks.
-			Log.e(TAG, e.getMessage());
+//			Log.e(TAG, e.getMessage());
 		}finally{
 			super.onDestroy();
 		}
@@ -801,8 +798,6 @@ public class MixView extends SherlockActivity implements SensorEventListener, On
 				getString(R.string.menu_item_7));
 		MenuItem item8 = menu.add(base, base + 7, base + 7,
 				getString(R.string.menu_item_8));
-
-		MenuItem item9 = menu.add(base, base + 8, base + 8, "drawText");
 		
 		/* assign icons to the menu items */
 		item1.setIcon(drawable.icon_datasource);
@@ -915,8 +910,6 @@ public class MixView extends SherlockActivity implements SensorEventListener, On
 			alert1.setTitle(getString(R.string.license_title));
 			alert1.show();
 			break;
-		case 9:
-			doError(null, new Random().nextInt(3));
 		}
 		return true;
 	}
@@ -1142,7 +1135,7 @@ public class MixView extends SherlockActivity implements SensorEventListener, On
 
 	public void doError(Exception ex1, int error) {
 		if (!fError) {
-			fError = true;
+//			fError = true;
 
 			setErrorDialog(error);
 
@@ -1407,7 +1400,7 @@ class AugmentedView extends View {
 
 			app.killOnError();
 		} catch (Exception ex) {
-			app.doError(ex, app.GENERAL_ERROR);
+			app.doError(ex, MixView.GENERAL_ERROR);
 		}
 	}
 
@@ -1464,7 +1457,7 @@ class AugmentedView extends View {
 
 			MixView.getDataView().draw(MixView.getdWindow());
 		} catch (Exception ex) {
-			app.doError(ex, app.GENERAL_ERROR);
+			app.doError(ex, MixView.GENERAL_ERROR);
 		}
 	}
 }

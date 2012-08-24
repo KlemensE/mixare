@@ -38,7 +38,6 @@ import org.mixare.lib.MixUtils;
 import org.mixare.lib.gui.PaintScreen;
 import org.mixare.lib.gui.ScreenLine;
 import org.mixare.lib.marker.Marker;
-import org.mixare.lib.marker.draw.PrimitiveProperty.primitive;
 import org.mixare.lib.render.Camera;
 import org.mixare.mgr.downloader.DownloadManager;
 import org.mixare.mgr.downloader.DownloadRequest;
@@ -178,7 +177,7 @@ public class DataView {
 			rrl.add(rx + RadarPoints.RADIUS, ry + RadarPoints.RADIUS);
 		} catch (Exception ex) {
 			// ex.printStackTrace();
-			Log.e("Mixare", ex.getMessage());
+//			Log.e("Mixare", ex.getMessage());
 		}
 		frozen = false;
 		isInit = true;
@@ -187,7 +186,7 @@ public class DataView {
 	public void requestData(String url) {
 		DownloadRequest request = new DownloadRequest(new DataSource(
 				"LAUNCHER", url, DataSource.TYPE.MIXARE,
-				DataSource.DISPLAY.CIRCLE_MARKER, true));
+				DataSource.DISPLAY.CIRCLE_MARKER, true, null, null));
 		mixContext.getDataSourceManager().setAllDataSourcesforLauncher(
 				request.getSource());
 		mixContext.getDownloadManager().submitJob(request);
@@ -218,9 +217,11 @@ public class DataView {
 		} else if (state.nextLStatus == MixState.PROCESSING) {
 			DownloadManager dm = mixContext.getDownloadManager();
 			DownloadResult dRes = null;
-
-			markers.addAll(downloadDrawResults(dm, dRes));
-			
+			try {
+				markers.addAll(downloadDrawResults(dm, dRes));
+			} catch(Exception e) {
+				
+			}
 			if (dm.isDone()) {
 				retry = 0;
 				state.nextLStatus = MixState.DONE;
@@ -331,7 +332,7 @@ public class DataView {
 					// jLayer = (DataHandler) dRes.obj;
 					Log.i(MixView.TAG, "Adding Markers");
 					markers.addAll(dRes.getMarkers());
-
+					Log.d("test", dRes.getMarkers().size() + "");
 					// Notification
 					mixContext.getNotificationManager().addNotification(
 							mixContext.getResources().getString(

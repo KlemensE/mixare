@@ -26,7 +26,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mixare.MixContext;
 import org.mixare.MixView;
-import org.mixare.POIMarker;
+import org.mixare.marker.POIMarker;
+import org.mixare.data.CustomTags;
 import org.mixare.data.DataHandler;
 import org.mixare.data.DataSource;
 import org.mixare.lib.HtmlUnescape;
@@ -64,7 +65,7 @@ public class WikiDataProcessor extends DataHandler implements DataProcessor{
 	}
 
 	@Override
-	public List<Marker> load(String rawData, int taskId, int colour) throws JSONException {
+	public List<Marker> load(String rawData, int taskId, int colour, DataSource ds) throws JSONException {
 		List<Marker> markers = new ArrayList<Marker>();
 		JSONObject root = convertToJSON(rawData);
 		JSONArray dataArray = root.getJSONArray("geonames");

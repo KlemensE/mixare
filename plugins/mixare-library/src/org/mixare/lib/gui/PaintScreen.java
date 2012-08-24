@@ -26,6 +26,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /**
  * This class has the ability to set up the main view and it paints objects on the screen
@@ -150,6 +151,7 @@ public class PaintScreen implements Parcelable{
 	}
 
 	public float getTextWidth(String txt) {
+//		Log.d("test", "paintscreen - getTextWidth of: " + txt);
 		return paint.measureText(txt);
 	}
 

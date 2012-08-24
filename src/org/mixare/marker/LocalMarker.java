@@ -24,7 +24,6 @@ import java.text.DecimalFormat;
 
 import org.mixare.MixView;
 import org.mixare.data.convert.Elevation;
-import org.mixare.data.convert.OsmDataProcessor;
 import org.mixare.lib.MixContextInterface;
 import org.mixare.lib.MixStateInterface;
 import org.mixare.lib.MixUtils;
@@ -41,7 +40,6 @@ import org.mixare.lib.render.MixVector;
 
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.util.Log;
 
 /**
  * The class represents a marker and contains its information.

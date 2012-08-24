@@ -23,21 +23,15 @@ import java.util.List;
 
 import org.mixare.R;
 
-import com.actionbarsherlock.app.SherlockListActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.SubMenu;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.KeyEvent;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
@@ -47,6 +41,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 
 public class DataSourceList extends SherlockListActivity {
 	
@@ -79,8 +78,10 @@ public class DataSourceList extends SherlockListActivity {
 		// copy the value from shared preference to adapter
 		dataSourceAdapter = new DataSourceAdapter();
 		for (int i = 0; i < size; i++) {
-			dataSourceAdapter.addItem(DataSourceStorage.getInstance()
-					.getDataSource(i));
+			DataSource ds = DataSourceStorage.getInstance()
+					.getDataSource(i);
+			Log.d("test", ds.toString());
+			dataSourceAdapter.addItem(ds);
 		}
 		setListAdapter(dataSourceAdapter);
 		ListView lv = getListView();
@@ -264,7 +265,6 @@ public class DataSourceList extends SherlockListActivity {
 				holder.checkbox = (CheckBox) convertView
 						.findViewById(R.id.list_checkbox);
 				holder.checkbox.setTag(position);
-				holder.checkbox.setOnCheckedChangeListener(this);
 				holder.datasource_icon = (ImageView) convertView
 						.findViewById(R.id.datasource_icon);
 
@@ -278,7 +278,9 @@ public class DataSourceList extends SherlockListActivity {
 				holder.text.setText(ds.getName());
 				holder.description.setText(ds.getUrl());
 				holder.datasource_icon.setImageResource(ds.getDataSourceIcon());
+				holder.checkbox.setOnCheckedChangeListener(null);
 				holder.checkbox.setChecked(ds.getEnabled());
+				holder.checkbox.setOnCheckedChangeListener(this);
 			}
 			return convertView;
 		}

@@ -27,7 +27,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.json.JSONException;
 import org.mixare.MixView;
-import org.mixare.NavigationMarker;
+import org.mixare.marker.NavigationMarker;
+import org.mixare.data.CustomTags;
 import org.mixare.data.DataHandler;
 import org.mixare.data.DataSource;
 import org.mixare.lib.marker.Marker;
@@ -55,18 +56,18 @@ public class OsmDataProcessor extends DataHandler implements DataProcessor {
 		String[] str = { "mapquestapi", "osm" };
 		return str;
 	}
-	
+
 	@Override
 	public boolean matchesRequiredType(String type) {
-		if(type.equals(DataSource.TYPE.OSM.name())){
+		if (type.equals(DataSource.TYPE.OSM.name())) {
 			return true;
 		}
 		return false;
 	}
 
 	@Override
-	public List<Marker> load(String rawData, int taskId, int colour)
-			throws JSONException {
+	public List<Marker> load(String rawData, int taskId, int colour,
+			DataSource ds) throws JSONException {
 		Element root = convertToXmlDocument(rawData).getDocumentElement();
 
 		List<Marker> markers = new ArrayList<Marker>();
@@ -94,13 +95,8 @@ public class OsmDataProcessor extends DataHandler implements DataProcessor {
 						Log.v(MixView.TAG, "OSM Node: " + name + " lat " + lat
 								+ " lon " + lon + "\n");
 
-						Marker ma = new NavigationMarker(
-								id,
-								name,
-								lat,
-								lon,
-								0,
-								"http://www.openstreetmap.org/?node="+ id,
+						Marker ma = new NavigationMarker(id, name, lat, lon, 0,
+								"http://www.openstreetmap.org/?node=" + id,
 								taskId, colour);
 						markers.add(ma);
 

@@ -104,17 +104,11 @@ public class POIMarker extends LocalMarker {
 
 		if (!isDirectionMarker) {
 			double d = distance;
-//			DecimalFormat df = new DecimalFormat("@#");
 			textStr = getTitle() + "(" + MixUtils.formatDist((float) d) + ")";
-//			if (d < 1000.0) {
-//				textStr = getTitle() + " (" + df.format(d) + "m)";
-//			} else {
-//				d = d / 1000.0;
-//				textStr = getTitle() + " (" + df.format(d) + "km)";
-//			}
 		} else {
 			textStr = getTitle();
 		}
+//		Log.d("test", textStr);
 		textBlock = new TextObj(textStr, Math.round(maxHeight / 2f) + 1, 250,
 				dw, isUnderline());
 

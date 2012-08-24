@@ -21,6 +21,8 @@ package org.mixare.data.convert;
 import java.util.List;
 
 import org.json.JSONException;
+import org.mixare.data.CustomTags;
+import org.mixare.data.DataSource;
 import org.mixare.lib.marker.Marker;
 
 /**
@@ -38,5 +40,5 @@ public interface DataProcessor {
 	
 	boolean matchesRequiredType(String type);
 	
-	List<Marker> load(String rawData, int taskId, int colour) throws JSONException;
+	List<Marker> load(String rawData, int taskId, int colour, DataSource ds) throws JSONException;
 }
